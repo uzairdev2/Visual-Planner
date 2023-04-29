@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "848981919149",
+    "project_id": "virtual-planner-22a5c",
+    "storage_bucket": "virtual-planner-22a5c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848981919149:android:81a807d82b5d863eafcd24",
+        "android_client_info": {
+          "package_name": "com.example.visual_planner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "848981919149-2qhjmjfefcnpbcjnljs7pvlm7acph74s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd5aqh8CEy07xN1KDdu50g0ttTWo60PD8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "848981919149-2qhjmjfefcnpbcjnljs7pvlm7acph74s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
