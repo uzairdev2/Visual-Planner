@@ -1,12 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:visual_planner/Features/Send%20Invitation%20Screen/send_invitation_screen.dart';
 
-import '../../Core/Firestore Services/firestore_services.dart';
+import '../../Core/common/common_snackBar.dart';
 import '../../Core/common/common_text_field.dart';
 import '../../Core/common/wide_filled_button.dart';
 import '../../Core/helper/helper.dart';
+import '../Send Invitation Screen/send_invitation_screen.dart';
 
 class CreateSprintScreen extends StatefulWidget {
   const CreateSprintScreen({super.key});
@@ -19,14 +20,6 @@ class _CreateSprintScreenState extends State<CreateSprintScreen> {
   TextEditingController sprintNameController = TextEditingController();
   TextEditingController startTimeController = TextEditingController();
   TextEditingController endTimeController = TextEditingController();
-
-  FirestoreService _service = FirestoreService();
-
-  void clearText() {
-    sprintNameController.clear();
-    startTimeController.clear();
-    endTimeController.clear();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,18 +118,34 @@ class _CreateSprintScreenState extends State<CreateSprintScreen> {
                     WideFilledButton(
                       btnText: 'Create Sprint',
                       onTap: () {
-                        _service.uploadSprintData(
+                        // Get the current user
+                        User? user = FirebaseAuth.instance.currentUser;
+                        if (user == null) {
+                          // If there is no logged in user, display an error message
+                          Get.snackbar('Error', 'You need to log in first!');
+                          return;
+                        }
+                        // Check the textfields are empty or not
+                        if (sprintNameController.text.isEmpty ||
+                            startTimeController.text.isEmpty ||
+                            endTimeController.text.isEmpty) {
+                          // show error toast
+                          costumSnackbar('Empty Fields',
+                              "Please Enter Sprint Name, start Time, and End Time ");
+                          return;
+                        }
+
+                        Navigator.push(
                           context,
-                          sprintNameController,
-                          startTimeController,
-                          endTimeController,
+                          MaterialPageRoute(
+                            builder: (context) => SendInvitationScreen(
+                              sprintData: SprintData(
+                                  sprintName: sprintNameController.text.trim(),
+                                  startingDate: startTimeController.text.trim(),
+                                  endingDate: endTimeController.text.trim()),
+                            ),
+                          ),
                         );
-                        clearText();
-                        Get.to(SendInvitationScreen(
-                          sprintName: sprintNameController.text,
-                          startingDate: startTimeController.text,
-                          endingDate: endTimeController.text,
-                        ));
                       },
                     )
                   ]),
@@ -146,4 +155,16 @@ class _CreateSprintScreenState extends State<CreateSprintScreen> {
       ),
     );
   }
+}
+
+class SprintData {
+  final String sprintName;
+  final String startingDate;
+  final String endingDate;
+
+  SprintData({
+    required this.sprintName,
+    required this.startingDate,
+    required this.endingDate,
+  });
 }

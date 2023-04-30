@@ -9,7 +9,7 @@ import '../../Core/helper/helper.dart';
 import '../../Core/routes/routes.dart';
 
 class SprintListScreen extends StatefulWidget {
-  const SprintListScreen({super.key});
+  const SprintListScreen({Key? key}) : super(key: key);
 
   @override
   State<SprintListScreen> createState() => _SprintListScreenState();
@@ -28,7 +28,7 @@ class _SprintListScreenState extends State<SprintListScreen> {
     final currentUser = FirebaseAuth.instance.currentUser;
     final sprintsRef = FirebaseFirestore.instance
         .collection('Sprints')
-        .where('userId', isEqualTo: currentUser!.uid);
+        .where('createdBy', isEqualTo: currentUser!.uid);
     final sprintsSnapshot = await sprintsRef.get();
     final loadedSprints = sprintsSnapshot.docs
         .map((sprints) => Sprints(
@@ -66,6 +66,7 @@ class _SprintListScreenState extends State<SprintListScreen> {
         text: 'Error deleting sprint',
       );
     }
+    Navigator.pop(context);
   }
 
   @override
@@ -196,7 +197,6 @@ class _SprintListScreenState extends State<SprintListScreen> {
                         confirmBtnColor: Colors.red,
                         onConfirmBtnTap: () async {
                           await _deleteSprint(sprint.id);
-                          Navigator.pop(context);
                         },
                       );
                     },

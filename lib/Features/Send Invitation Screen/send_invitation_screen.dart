@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:visual_planner/Features/Add%20Sprint%20Screen/add_sprint_screen.dart';
 
 import '../../Core/Firestore Services/firestore_services.dart';
 import '../../Core/helper/helper.dart';
@@ -9,13 +12,10 @@ import '../../Core/models/Users Data/json_model.dart';
 import '../../Core/routes/routes.dart';
 
 class SendInvitationScreen extends StatefulWidget {
-  final String sprintName;
-  final String startingDate;
-  final String endingDate;
+  final SprintData sprintData;
+
   const SendInvitationScreen({
-    required this.sprintName,
-    required this.startingDate,
-    required this.endingDate,
+    required this.sprintData,
     super.key,
   });
 
@@ -66,6 +66,82 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
 
   bool _isCurrentUser(Users user) {
     return _currentUser != null && user.email == _currentUser?.email;
+  }
+
+  Future<void> _uploadInvitationData() async {
+    final currentUserEmail = _currentUser?.email;
+    final selectedUserEmails =
+        _selectedUsers.map((user) => user.email).toList();
+    final invitationData = {
+      'sprintName': widget.sprintData.sprintName,
+      'startingDate': widget.sprintData.startingDate,
+      'endingDate': widget.sprintData.endingDate,
+      'senderEmail': currentUserEmail,
+      'recipientEmails': selectedUserEmails,
+      'status': 'Pending'
+    };
+    await _firestoreService.createInvitation(invitationData);
+    Get.toNamed(Routes.SprintList);
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.success,
+      title: "Invitation Was Sent",
+      backgroundColor: Colors.grey.shade700,
+      titleColor: Colors.white,
+    );
+  }
+
+  /* -----------------------------> Upload Sprint details <------------------------------ */
+
+  Future<void> uploadSprintData() async {
+    String sprintName = widget.sprintData.sprintName;
+    String startingDate = widget.sprintData.startingDate;
+    String endingDate = widget.sprintData.endingDate;
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // If there is no logged in user, display an error message
+      Get.snackbar('Error', 'You need to log in first!');
+      return;
+    }
+
+    // Retrieve the project ID and name from the user's data in Firestore
+    QuerySnapshot<Map<String, dynamic>> projectsSnapshot =
+        await FirebaseFirestore.instance
+            .collection('Projects')
+            .where('userId', isEqualTo: user.uid)
+            .get();
+    if (projectsSnapshot.docs.isEmpty) {
+      // If there is no project found for the user, display an error message
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        titleColor: Colors.white,
+        backgroundColor: Colors.red.shade700,
+        text: 'You need to create a project first!',
+        textColor: Colors.white,
+      );
+      return;
+    }
+// Assuming that you only have one project per user, get the first document
+    DocumentSnapshot<Map<String, dynamic>> projectSnapshot =
+        projectsSnapshot.docs.first;
+    String projectId = projectSnapshot.id;
+    String projectName = projectSnapshot.data()!['projectName'];
+
+    // Add the Sprint collection to the Firestore
+    DocumentReference sprintDocRef =
+        await FirebaseFirestore.instance.collection('Sprints').add({
+      'sprintName': sprintName,
+      'startTime': startingDate,
+      'endTime': endingDate,
+      'projectId': projectId,
+      'projectName': projectName,
+      'createdBy': user.uid,
+      'createdByName': user.displayName,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
   }
 
   @override
@@ -139,26 +215,11 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
       floatingActionButton: _selectedUsers.isNotEmpty
           ? FloatingActionButton(
               onPressed: () async {
+                // Uploading the sprint details to the firestore database
+                uploadSprintData();
+
                 // Implement invite functionality here
-                final currentUserEmail = _currentUser?.email;
-                final selectedUserEmails =
-                    _selectedUsers.map((user) => user.email).toList();
-                final invitationData = {
-                  'sprintName': widget.sprintName,
-                  'startingDate': widget.startingDate,
-                  'endingDate': widget.endingDate,
-                  'senderEmail': currentUserEmail,
-                  'recipientEmails': selectedUserEmails,
-                };
-                await _firestoreService.createInvitation(invitationData);
-                Get.toNamed(Routes.SprintList);
-                QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.success,
-                  title: "Invitation Was Sent",
-                  backgroundColor: Colors.grey.shade700,
-                  titleColor: Colors.white,
-                );
+                _uploadInvitationData();
               },
               child: const Icon(Icons.send),
             )

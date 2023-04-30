@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:visual_planner/Core/Firestore%20Services/firestore_services.dart';
 
+import '../../Core/Firestore Services/firestore_services.dart';
 import '../../Core/controllers/dashboardController.dart';
 import '../../Core/helper/helper.dart';
+import '../../Core/routes/routes.dart';
 import '../Dashboard Screen/components/components/sidebar.dart';
 import '../Dashboard Screen/components/shared_components/responsive_builder.dart';
 
@@ -68,7 +70,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Failed to delete project!'),
           duration: Duration(seconds: 2),
         ),
@@ -136,15 +138,19 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
               future: Future<void>.delayed(const Duration(seconds: 10)),
               builder: (ctx, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  return const Center(
-                    child: Text(
+                  return Center(
+                      child: TextButton(
+                    onPressed: () {
+                      Get.toNamed(Routes.addProject);
+                    },
+                    child: const Text(
                       'Projects cannot be created yet',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  );
+                  ));
                 } else {
                   return const Center(child: CircularProgressIndicator());
                 }

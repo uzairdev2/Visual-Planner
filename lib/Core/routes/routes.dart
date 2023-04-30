@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:visual_planner/Features/Receive%20Invitation%20Screen/receive_invitation_screen.dart';
 
 import '../../Features/Add Project Screen/add_project_screen.dart';
 import '../../Features/Add Sprint Screen/add_sprint_screen.dart';
@@ -32,6 +33,7 @@ class Routes {
   static const ProjectList = '/ProjectListScreen';
   static const Calendar = '/CalendarScreen';
   static const SprintList = '/SprintListScreen';
+  static const ReceiveInvitation = '/ReceiveInvitationScreen';
 
   static final List<GetPage> getPages = [
     GetPage(name: splashScreen, page: () => const SplashScreen()), //onboarding
@@ -48,5 +50,6 @@ class Routes {
     GetPage(name: Profile, page: () => const ProfileScreen()),
     GetPage(name: ProjectList, page: () => const ProjectListScreen()),
     GetPage(name: SprintList, page: () => const SprintListScreen()),
+    GetPage(name: ReceiveInvitation, page: () => ReceiveInvitationScreen()),
   ];
 }

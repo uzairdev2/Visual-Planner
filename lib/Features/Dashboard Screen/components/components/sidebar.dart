@@ -60,7 +60,7 @@ class SIDEBAR extends StatelessWidget {
                 SelectionButtonData(
                   activeIcon: EvaIcons.email,
                   icon: EvaIcons.emailOutline,
-                  label: "Email",
+                  label: "Invitations",
                   totalNotif: 20,
                 ),
                 SelectionButtonData(
@@ -80,8 +80,8 @@ class SIDEBAR extends StatelessWidget {
                   Get.toNamed(Routes.ProjectList);
                 } else if (value.label == "Board") {
                   // Navigator.pushNamed(context, '/board');
-                } else if (value.label == "Email") {
-                  // Navigator.pushNamed(context, '/email');
+                } else if (value.label == "Invitations") {
+                  Get.toNamed(Routes.ReceiveInvitation);
                 } else if (value.label == "Profile") {
                   Get.toNamed(Routes.Profile);
                 }
