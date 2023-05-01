@@ -33,7 +33,6 @@ class ActiveProjectCard extends StatelessWidget {
               thickness: 1,
               height: kSpacing,
             ),
-            const SizedBox(height: kSpacing),
             child,
           ],
         ),
