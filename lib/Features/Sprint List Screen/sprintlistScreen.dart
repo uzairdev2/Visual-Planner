@@ -34,8 +34,8 @@ class _SprintListScreenState extends State<SprintListScreen> {
         .map((sprints) => Sprints(
               id: sprints.id,
               createdAt: (sprints.data()["createdAt"] as Timestamp).toDate(),
-              name: sprints.data()['sprintName'],
-              startDate: sprints.data()['startTime'],
+              name: sprints.data()['endingDate'],
+              startDate: sprints.data()['startingDate'],
               endDate: sprints.data()['endTime'],
             ))
         .toList();

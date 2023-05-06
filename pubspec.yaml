@@ -65,6 +65,8 @@ dependencies:
   image_picker:
   # Showing The Calendar 
   table_calendar:
+  firebase_messaging: ^14.4.1
+  flutter_local_notifications: ^14.0.0+1
 
 dev_dependencies:
   flutter_test:

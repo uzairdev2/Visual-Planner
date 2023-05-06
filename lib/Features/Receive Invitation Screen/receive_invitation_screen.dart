@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Core/controllers/dashboardController.dart';
 import '../../Core/helper/helper.dart';
@@ -19,11 +20,28 @@ class ReceiveInvitationScreen extends StatefulWidget {
 class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
   late Stream<QuerySnapshot> _invitationStream;
   final dashboardController = DashboardController();
+  final _currentUser = FirebaseAuth.instance.currentUser;
+  bool _showCard = true;
+  // define a variable to store the shared preference instance
+  late SharedPreferences _prefs;
+
+  void _loadSettings() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _showCard = _prefs.getBool('showCard') ?? true;
+    });
+  }
+
+  void _saveSettings() {
+    _prefs.setBool(
+        'showCard', _showCard); // save the value to shared preferences
+  }
 
   @override
   void initState() {
     super.initState();
     _loadSprintData();
+    _loadSettings();
   }
 
   void _loadSprintData() {
@@ -31,7 +49,7 @@ class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
     final currentUserEmail = currentUser?.email;
     _invitationStream = FirebaseFirestore.instance
         .collection('Invitations')
-        .where('recipientEmails', arrayContains: currentUserEmail)
+        .where('recipientEmails.$currentUserEmail', isNotEqualTo: null)
         .where('senderEmail', isNotEqualTo: currentUserEmail)
         .snapshots();
   }
@@ -120,92 +138,129 @@ class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Sprint name: $sprintName",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Start: $startingDate",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          "End: $endingDate",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Sent by: $senderEmail",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                // code for accepting invitation
-                                final invitationDocId =
-                                    invitationDocs[index].id;
-                                await FirebaseFirestore.instance
-                                    .collection('Invitations')
-                                    .doc(invitationDocId)
-                                    .update({'status': 'Accepted'});
-                                Navigator.of(context).pop();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                              ),
-                              child: const Text(
-                                'Accept',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
+                child: Visibility(
+                  visible: _showCard,
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Sprint name: $sprintName",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () async {
-                                // code for rejecting invitation
-                                final invitationDocId =
-                                    invitationDocs[index].id;
-                                await FirebaseFirestore.instance
-                                    .collection('Invitations')
-                                    .doc(invitationDocId)
-                                    .update({'status': 'Rejeted'});
-                                Navigator.of(context).pop();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                              ),
-                              child: const Text(
-                                'Reject',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Start: $startingDate",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          Text(
+                            "End: $endingDate",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Sent by: $senderEmail",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  // code for accepting invitation
+                                  final invitationDocId =
+                                      invitationDocs[index].id;
+                                  final currentUserEmail = _currentUser?.email;
+                                  final invitationDocSnapshot =
+                                      await FirebaseFirestore.instance
+                                          .collection('Invitations')
+                                          .doc(invitationDocId)
+                                          .get();
+                                  final recipientEmails = invitationDocSnapshot
+                                          .data()?['recipientEmails'] ??
+                                      {};
+                                  if (recipientEmails
+                                      .containsKey(currentUserEmail)) {
+                                    recipientEmails[currentUserEmail] =
+                                        'Accepted';
+                                    await FirebaseFirestore.instance
+                                        .collection('Invitations')
+                                        .doc(invitationDocId)
+                                        .update({
+                                      'recipientEmails': recipientEmails
+                                    });
+                                    // check if invitation has been rejected or accepted
+                                    if (recipientEmails[currentUserEmail] ==
+                                            'Rejected' ||
+                                        recipientEmails[currentUserEmail] ==
+                                            'Accepted') {
+                                      setState(() {
+                                        _showCard = false;
+                                      });
+                                    }
+                                    _loadSettings(); // save the state to shared preferences
+                                  }
+                                },
+                                child: const Text('Accept'),
+                              ),
+                              SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  // code for rejecting invitation
+                                  final invitationDocId =
+                                      invitationDocs[index].id;
+                                  final currentUserEmail = _currentUser?.email;
+                                  final invitationDocSnapshot =
+                                      await FirebaseFirestore.instance
+                                          .collection('Invitations')
+                                          .doc(invitationDocId)
+                                          .get();
+                                  final recipientEmails = invitationDocSnapshot
+                                          .data()?['recipientEmails'] ??
+                                      {};
+                                  if (recipientEmails
+                                      .containsKey(currentUserEmail)) {
+                                    recipientEmails[currentUserEmail] =
+                                        'Rejected';
+                                    await FirebaseFirestore.instance
+                                        .collection('Invitations')
+                                        .doc(invitationDocId)
+                                        .update({
+                                      'recipientEmails': recipientEmails
+                                    });
+                                    // check if invitation has been rejected or accepted
+                                    if (recipientEmails[currentUserEmail] ==
+                                            'Rejected' ||
+                                        recipientEmails[currentUserEmail] ==
+                                            'Accepted') {
+                                      setState(() {
+                                        _showCard = false;
+                                      });
+                                    }
+                                    _loadSettings(); // save the state to shared preferences
+                                  }
+                                },
+                                child: const Text('Reject'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

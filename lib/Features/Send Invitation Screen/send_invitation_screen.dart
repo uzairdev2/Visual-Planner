@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:visual_planner/Features/Add%20Sprint%20Screen/add_sprint_screen.dart';
 
 import '../../Core/Firestore Services/firestore_services.dart';
 import '../../Core/helper/helper.dart';
 import '../../Core/models/Users Data/json_model.dart';
 import '../../Core/routes/routes.dart';
+import '../Add Sprint Screen/add_sprint_screen.dart';
 
 class SendInvitationScreen extends StatefulWidget {
   final SprintData sprintData;
@@ -72,15 +72,29 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
     final currentUserEmail = _currentUser?.email;
     final selectedUserEmails =
         _selectedUsers.map((user) => user.email).toList();
+
+    // Create an object to store the invitation data and recipient emails and their status
     final invitationData = {
       'sprintName': widget.sprintData.sprintName,
       'startingDate': widget.sprintData.startingDate,
       'endingDate': widget.sprintData.endingDate,
       'senderEmail': currentUserEmail,
-      'recipientEmails': selectedUserEmails,
-      'status': 'Pending'
+      'recipientEmails': <String,
+          String>{}, // Create an empty object to store the recipients and their status
     };
-    await _firestoreService.createInvitation(invitationData);
+
+    // Add the recipient emails to the invitation data object with 'Pending' status
+    for (final recipientEmail in selectedUserEmails) {
+      (invitationData['recipientEmails']
+          as Map<String, String>)[recipientEmail] = 'Pending';
+    }
+
+    // Create the Invitations collection and add the invitation data
+    final invitationsCollection =
+        FirebaseFirestore.instance.collection('Invitations');
+    final invitationDocRef = await invitationsCollection.add(invitationData);
+
+    // Show success message and navigate to the SprintList page
     Get.toNamed(Routes.SprintList);
     QuickAlert.show(
       context: context,
@@ -134,8 +148,8 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
     DocumentReference sprintDocRef =
         await FirebaseFirestore.instance.collection('Sprints').add({
       'sprintName': sprintName,
-      'startTime': startingDate,
-      'endTime': endingDate,
+      'startingDate': startingDate,
+      'endingDate': endingDate,
       'projectId': projectId,
       'projectName': projectName,
       'createdBy': user.uid,
