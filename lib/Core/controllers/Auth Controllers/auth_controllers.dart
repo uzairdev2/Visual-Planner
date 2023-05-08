@@ -156,6 +156,9 @@ class AuthController with ChangeNotifier {
       );
       return;
     }
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    sharedPreferences.setString('email', email);
     Get.toNamed(Routes.dashboard);
 
     QuickAlert.show(

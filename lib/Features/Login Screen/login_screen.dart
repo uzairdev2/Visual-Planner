@@ -15,9 +15,6 @@ class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool isRemeberme = false;
-
-  final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   @override
   Widget build(BuildContext context) {
