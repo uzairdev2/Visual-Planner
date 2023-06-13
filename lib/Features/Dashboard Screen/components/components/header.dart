@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:visual_planner/Features/Dashboard%20Screen/InvaitionScreen/invaitionScreen.dart';
 
 import '../../../../Core/helper/helper.dart';
 import '../shared_components/search_field.dart';
@@ -10,13 +12,17 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const TodayText(),
-        const SizedBox(width: kSpacing),
-        Expanded(child: SearchField()),
-        const SizedBox(
-          width: kSpacing,
-        ),
+        IconButton(
+            onPressed: () {
+              Get.to(InvaitionScreen());
+            },
+            icon: Icon(
+              Icons.insert_invitation_rounded,
+              size: 30,
+            ))
       ],
     );
   }

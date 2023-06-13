@@ -111,12 +111,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     WideFilledButton(
                       btnText: 'Create Project',
                       onTap: () {
+                        // if (projectNameController.text.isNotEmpty &&
+                        //     discreptionController.text.isNotEmpty) {
+                        //   Get.snackbar("Error", "Requrid all fields",
+                        //       snackPosition: SnackPosition.BOTTOM);
+                        // } else {
                         _firestoreService.uploadProjectData(
                           context,
                           projectNameController,
                           discreptionController,
                         );
                         clearText();
+                        // }
                       },
                     ),
                   ]),

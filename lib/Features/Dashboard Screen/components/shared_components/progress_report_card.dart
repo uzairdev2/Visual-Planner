@@ -42,6 +42,7 @@ class ProgressReportCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(kBorderRadius),
       ),
+  
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

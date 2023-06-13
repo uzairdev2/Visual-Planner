@@ -53,6 +53,6 @@ class Routes {
     GetPage(name: SprintList, page: () => const SprintListScreen()),
     GetPage(
         name: ReceiveInvitation, page: () => const ReceiveInvitationScreen()),
-    GetPage(name: SprintDetails, page: () => const SprintDetailsScreen()),
+    // GetPage(name: SprintDetails, page: () => const SprintDetailsScreen()),
   ];
 }

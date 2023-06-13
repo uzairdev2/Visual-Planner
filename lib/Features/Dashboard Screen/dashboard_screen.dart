@@ -1,10 +1,18 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:visual_planner/Core/routes/routes.dart';
+import 'package:visual_planner/Features/Dashboard%20Screen/SprintScreen/sprint.dart';
 
 import '../../Core/controllers/dashboardController.dart';
+import '../../Core/models/commonData.dart';
+import '../Splash Screen/splash_screen.dart';
+import 'TaskScreen/showAddedTask.dart';
 import 'components/components/header.dart';
 import 'components/components/profile_tile.dart';
 import 'components/components/sidebar.dart';
@@ -23,140 +31,312 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //ThemeData.dark();
+    log("here is userid $userid");
+    log("here is userid ${commonModel.userid}");
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       key: dashboardController.scafolKey,
-      drawer: (ResponsiveBuilder.isDesktop(context))
-          ? null
-          : Drawer(
-              child: Padding(
-                padding: const EdgeInsets.only(top: kSpacing),
-                child: SIDEBAR(
-                  data: dashboardController.getSelectedProject(),
-                ),
+      drawer: Drawer(
+        child: Padding(
+          padding: const EdgeInsets.only(top: kSpacing),
+          child: SIDEBAR(
+            data: dashboardController.getSelectedProject(),
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: kSpacing * (kIsWeb ? 1 : 2),
+            ),
+            buildHeader(
+              onPressedMenu: () => dashboardController.openDrawer(),
+            ),
+            const SizedBox(height: kSpacing / 2),
+            const Divider(),
+            buildProfile(data: dashboardController.getProfil()),
+            const SizedBox(height: kSpacing),
+            Text("Your Accepted WorkSpace",
+                style: GoogleFonts.poppins(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                )),
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('Invitations')
+                  .where('recipientEmails', isEqualTo: commonModel.email)
+                  .where(
+                    'status',
+                    isEqualTo: 'Accepted',
+                  )
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.data!.docs.isEmpty) {
+                  return Center(
+                      child: Text(
+                    "No Sprint here",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ));
+                } else {
+                  return StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('Sprints')
+                        .where('sprintName',
+                            isEqualTo: snapshot.data!.docs[0]["sprintName"])
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.data!.docs.isEmpty) {
+                        return Center(
+                            child: Text(
+                          "",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ));
+                      } else {
+                        return Expanded(
+                          child: ListView.builder(
+                              itemCount: snapshot.data!.docs.length,
+                              itemBuilder: (context, index) {
+                                var data = snapshot.data!.docs[index];
+
+                                return InkWell(
+                                    onTap: () {
+                                      Get.to(ShowAddedTask(
+                                          Sprintid: data["projectId"],
+                                          Sprintname: data["sprintName"]));
+                                    },
+                                    child: Card(
+                                      child: Container(
+                                        height: 180,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color.fromRGBO(129, 120, 183, 1),
+                                              Color.fromRGBO(65, 139, 128, 1),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                              kBorderRadius),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                CommonRow(
+                                                  details: data["projectName"],
+                                                  title: "Project Name",
+                                                ),
+                                                CommonRow(
+                                                  details: data["sprintName"],
+                                                  title: "Sprint Name",
+                                                ),
+                                              ],
+                                            ),
+
+                                            Column(
+                                              children: [
+                                                CommonRow(
+                                                  details: data["startingDate"],
+                                                  title: "Sprint Start Date:",
+                                                ),
+                                                CommonRow(
+                                                  details: data["endingDate"],
+                                                  title: "Sprint End Date:",
+                                                ),
+                                              ],
+                                            ),
+
+                                            //copy complete row
+                                          ],
+                                        ),
+                                      ),
+                                    )
+
+                                    // ProgressReportCard(
+                                    //   data: ProgressReportCardData(
+                                    //     title: "${data["sprintName"]}",
+                                    //     doneTask: 5,
+                                    //     percent: .4,
+                                    //     task: 3,
+                                    //     undoneTask: 112,
+                                    //   ),
+                                    // ),
+
+                                    );
+                              }),
+                        );
+                      }
+                    },
+                  );
+                }
+              },
+            ),
+            Text("Your Own workSpace",
+                style: GoogleFonts.poppins(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                )),
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('Projects')
+                    .where('userId', isEqualTo: userid)
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.data!.docs.isEmpty) {
+                    return InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.addProject);
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(kBorderRadius),
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Transform.translate(
+                                  offset: const Offset(10, 30),
+                                  child: const SizedBox(
+                                    height: 200,
+                                    width: 200,
+                                    child: Image(
+                                      image: AssetImage(
+                                          "assets/images/happy-2.png"),
+                                      fit: BoxFit.fitHeight,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: kSpacing,
+                                top: kSpacing,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "No Project Yet",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Working on a new track...",
+                                    style:
+                                        TextStyle(color: kFontColorPallets[1]),
+                                  ),
+                                  const SizedBox(height: kSpacing),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          var data = snapshot.data!.docs[index];
+
+                          return InkWell(
+                            onTap: () {
+                              Get.to(SprintScreen(
+                                Projectid: data["projectId"],
+                              ));
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(kBorderRadius),
+                              ),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(kBorderRadius),
+                                    child: Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Transform.translate(
+                                        offset: const Offset(10, 30),
+                                        child: const SizedBox(
+                                          height: 200,
+                                          width: 200,
+                                          child: Image(
+                                            image: AssetImage(
+                                                "assets/images/happy-2.png"),
+                                            fit: BoxFit.fitHeight,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: kSpacing,
+                                      top: kSpacing,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          data["projectName"],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 30,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Working on a new track...",
+                                          style: TextStyle(
+                                              color: kFontColorPallets[1]),
+                                        ),
+                                        const SizedBox(height: kSpacing),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  }
+                },
               ),
             ),
-      body: SingleChildScrollView(
-        child: ResponsiveBuilder(
-          mobileBuilder: (context, constraints) {
-            return Column(
-              children: [
-                const SizedBox(
-                  height: kSpacing * (kIsWeb ? 1 : 2),
-                ),
-                buildHeader(
-                  onPressedMenu: () => dashboardController.openDrawer(),
-                ),
-                const SizedBox(height: kSpacing / 2),
-                const Divider(),
-                buildProfile(data: dashboardController.getProfil()),
-                const SizedBox(height: kSpacing),
-                buildProgress(
-                  axis: (constraints.maxWidth < 950)
-                      ? Axis.vertical
-                      : Axis.horizontal,
-                ),
-                const SizedBox(height: kSpacing),
-                buildTeamMember(data: dashboardController.getMember()),
-                const SizedBox(height: kSpacing),
-              ],
-            );
-          },
-          tabletBuilder: (context, constraints) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  flex: (constraints.maxWidth < 950) ? 6 : 9,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: kSpacing * (kIsWeb ? 1 : 2)),
-                      buildHeader(
-                        onPressedMenu: () => dashboardController.openDrawer(),
-                      ),
-                      const SizedBox(height: kSpacing * 2),
-                      buildProgress(
-                        axis: (constraints.maxWidth < 950)
-                            ? Axis.vertical
-                            : Axis.horizontal,
-                      ),
-                      const SizedBox(height: kSpacing),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  flex: 4,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: kSpacing * (kIsWeb ? 0.5 : 1.5)),
-                      buildProfile(data: dashboardController.getProfil()),
-                      const Divider(thickness: 1),
-                      const SizedBox(height: kSpacing),
-                      buildTeamMember(data: dashboardController.getMember()),
-                      const SizedBox(height: kSpacing),
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: kSpacing),
-                        child: GetPremiumCard(onPressed: () {}),
-                      ),
-                      const SizedBox(height: kSpacing),
-                    ],
-                  ),
-                )
-              ],
-            );
-          },
-          desktopBuilder: (context, constraints) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  flex: (constraints.maxWidth < 1360) ? 4 : 3,
-                  child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(kBorderRadius),
-                        bottomRight: Radius.circular(kBorderRadius),
-                      ),
-                      child: SIDEBAR(
-                          data: dashboardController.getSelectedProject())),
-                ),
-                Flexible(
-                  flex: 9,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: kSpacing),
-                      buildHeader(),
-                      const SizedBox(height: kSpacing * 2),
-                      buildProgress(),
-                      const SizedBox(height: kSpacing),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  flex: 4,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: kSpacing / 2),
-                      buildProfile(data: dashboardController.getProfil()),
-                      const Divider(thickness: 1),
-                      const SizedBox(height: kSpacing),
-                      buildTeamMember(data: dashboardController.getMember()),
-                      const SizedBox(height: kSpacing),
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: kSpacing),
-                        child: GetPremiumCard(onPressed: () {}),
-                      ),
-                      const SizedBox(height: kSpacing),
-                      const Divider(thickness: 1),
-                      const SizedBox(height: kSpacing),
-                    ],
-                  ),
-                )
-              ],
-            );
-          },
+            const SizedBox(height: kSpacing),
+          ],
         ),
       ),
     );
@@ -185,60 +365,25 @@ class DashboardScreen extends StatelessWidget {
   Widget buildProgress({Axis axis = Axis.horizontal}) {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-        child: (axis == Axis.horizontal)
-            ? Row(
-                children: [
-                  Flexible(
-                    flex: 5,
-                    child: ProgressCard(
-                      data: const ProgressCardData(
-                        totalUndone: 10,
-                        totalTaskInProress: 2,
-                      ),
-                      onPressedCheck: () {},
-                    ),
-                  ),
-                  const SizedBox(width: kSpacing / 2),
-                  const Flexible(
-                    flex: 4,
-                    child: ProgressReportCard(
-                      data: ProgressReportCardData(
-                        title: "1st Sprint",
-                        doneTask: 5,
-                        percent: .3,
-                        task: 3,
-                        undoneTask: 2,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Column(
-                children: [
-                  ProgressCard(
-                    data: const ProgressCardData(
-                      totalUndone: 10,
-                      totalTaskInProress: 2,
-                    ),
-                    onPressedCheck: () {},
-                  ),
-                  const SizedBox(height: kSpacing / 2),
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed(Routes.SprintDetails);
-                    },
-                    child: const ProgressReportCard(
-                      data: ProgressReportCardData(
-                        title: "1st Sprint",
-                        doneTask: 5,
-                        percent: .4,
-                        task: 3,
-                        undoneTask: 2,
-                      ),
-                    ),
-                  ),
-                ],
-              ));
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                log("tab here");
+              },
+              child: ProgressCard(
+                data: const ProgressCardData(
+                  totalUndone: 12,
+                  totalTaskInProress: 2,
+                ),
+                onPressedCheck: () {
+                  log("off");
+                },
+              ),
+            ),
+            const SizedBox(height: kSpacing / 2),
+          ],
+        ));
   }
 
   Widget buildProfile({required Profile data}) {
@@ -247,23 +392,6 @@ class DashboardScreen extends StatelessWidget {
       child: ProfilTile(
         data: data,
         onPressedNotification: () {},
-      ),
-    );
-  }
-
-  Widget buildTeamMember({required List<ImageProvider> data}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TeamMember(
-            totalMember: data.length,
-            onPressedAdd: () {},
-          ),
-          const SizedBox(height: kSpacing / 2),
-          ListProfilImage(maxImages: 6, images: data),
-        ],
       ),
     );
   }

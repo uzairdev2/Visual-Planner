@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:visual_planner/Core/models/commonData.dart';
 
 import '../../Core/Firestore Services/firestore_services.dart';
 import '../../Core/helper/helper.dart';
@@ -25,8 +28,8 @@ class SendInvitationScreen extends StatefulWidget {
 
 class _SendInvitationScreenState extends State<SendInvitationScreen> {
   final FirestoreService _firestoreService = FirestoreService();
-  List<Users> _users = [];
-  List<Users> _selectedUsers = [];
+  List<UserModels> _users = [];
+  List<UserModels> _selectedUsers = [];
   Users? _currentUser;
 
   @override
@@ -50,11 +53,11 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
     });
   }
 
-  bool _isSelected(Users user) {
+  bool _isSelected(UserModels user) {
     return _selectedUsers.contains(user);
   }
 
-  void _toggleSelection(Users user) {
+  void _toggleSelection(UserModels user) {
     setState(() {
       if (_isSelected(user)) {
         _selectedUsers.remove(user);
@@ -64,7 +67,7 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
     });
   }
 
-  bool _isCurrentUser(Users user) {
+  bool _isCurrentUser(UserModels user) {
     return _currentUser != null && user.email == _currentUser?.email;
   }
 
@@ -74,28 +77,55 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
         _selectedUsers.map((user) => user.email).toList();
 
     // Create an object to store the invitation data and recipient emails and their status
-    final invitationData = {
-      'sprintName': widget.sprintData.sprintName,
-      'startingDate': widget.sprintData.startingDate,
-      'endingDate': widget.sprintData.endingDate,
-      'senderEmail': currentUserEmail,
-      'recipientEmails': <String,
-          String>{}, // Create an empty object to store the recipients and their status
-    };
+    // final invitationData = {
+    //   'sprintName': widget.sprintData.sprintName,
+    //   'startingDate': widget.sprintData.startingDate,
+    //   'endingDate': widget.sprintData.endingDate,
+    //   'senderEmail': currentUserEmail,
+    //   'recipientEmails': <String,
+    //       String>{}, // Create an empty object to store the recipients and their status
+    // };
 
     // Add the recipient emails to the invitation data object with 'Pending' status
-    for (final recipientEmail in selectedUserEmails) {
-      (invitationData['recipientEmails']
-          as Map<String, String>)[recipientEmail] = 'Pending';
-    }
+    // for (final recipientEmail in selectedUserEmails) {
+    //   (invitationData['recipientEmails']
+    //       as Map<String, String>)[recipientEmail] = 'Pending';
+    // }
 
-    // Create the Invitations collection and add the invitation data
     final invitationsCollection =
         FirebaseFirestore.instance.collection('Invitations');
-    final invitationDocRef = await invitationsCollection.add(invitationData);
+
+    for (int i = 0; i < selectedUserEmails.length; i++) {
+      final invitationDocRef = await invitationsCollection.add(
+        {
+          'sprintName': widget.sprintData.sprintName,
+          'startingDate': widget.sprintData.startingDate,
+          'endingDate': widget.sprintData.endingDate,
+          'senderEmail': currentUserEmail,
+          'recipientEmails': selectedUserEmails[
+              i], // Create an empty object to store the recipients and their status
+          "status": "Pending",
+        },
+      );
+
+      // (invitationData['recipientEmails']
+      //     as Map<String, dynamic>)[i.toString()] = selectedUserEmails[i];
+      // (invitationData['recipientEmails']
+      //     as Map<String, dynamic>)[i.toString()] = "Pending";
+      //     {
+      //   selectedUserEmails[i],
+      //   // "Pending",
+      // };
+    }
+
+    //   (invitationData['recipientEmails'] as Map<String, String>)["Status"] =
+    //       "Pending";
+    // }
+
+    // Create the Invitations collection and add the invitation data
 
     // Show success message and navigate to the SprintList page
-    Get.toNamed(Routes.SprintList);
+    Get.offAllNamed(Routes.dashboard);
     QuickAlert.show(
       context: context,
       type: QuickAlertType.success,
@@ -152,8 +182,8 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
       'endingDate': endingDate,
       'projectId': projectId,
       'projectName': projectName,
-      'createdBy': user.uid,
-      'createdByName': user.displayName,
+      'createdById': user.uid,
+      'createdByName': commonModel.name.toString(),
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -197,7 +227,7 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
               width: size.width * 0.1,
             ),
             Text(
-              "Invite Your Friends",
+              "Invite Members",
               style: GoogleFonts.ubuntu(
                   color: Colors.black,
                   fontSize: 23,
@@ -210,15 +240,16 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
         itemCount: _users.length,
         itemBuilder: (context, index) {
           final user = _users[index];
+          log("her is user nanem ${_users[index]}");
           if (_isCurrentUser(user)) {
             return const SizedBox.shrink(); // don't show current user in list
           }
           return ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage(user.profileImageUrl),
+              backgroundImage: NetworkImage(user.profileImageUrl!),
             ),
-            title: Text(user.name),
-            subtitle: Text(user.email),
+            title: Text(user.name!),
+            subtitle: Text(user.email!),
             trailing: Checkbox(
               value: _isSelected(user),
               onChanged: (value) => _toggleSelection(user),
@@ -230,10 +261,10 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
           ? FloatingActionButton(
               onPressed: () async {
                 // Uploading the sprint details to the firestore database
-                uploadSprintData();
+                await uploadSprintData();
 
                 // Implement invite functionality here
-                _uploadInvitationData();
+                await _uploadInvitationData();
               },
               child: const Icon(Icons.send),
             )

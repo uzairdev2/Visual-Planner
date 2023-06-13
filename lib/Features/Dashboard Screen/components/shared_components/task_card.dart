@@ -54,7 +54,7 @@ class TaskCard extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(5),
-              child: _Tile(
+              child: Tile(
                 dotColor: data.type.getColor(),
                 title: data.title,
                 subtitle: (data.dueDay < 0)
@@ -94,13 +94,13 @@ class TaskCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: kSpacing / 2),
               child: Row(
                 children: [
-                  _IconButton(
+                  IconButtons(
                     iconData: EvaIcons.messageCircleOutline,
                     onPressed: onPressedComments,
                     totalContributors: data.totalComments,
                   ),
                   const SizedBox(width: kSpacing / 2),
-                  _IconButton(
+                  IconButtons(
                     iconData: EvaIcons.peopleOutline,
                     onPressed: onPressedContributors,
                     totalContributors: data.totalContributors,
@@ -117,8 +117,8 @@ class TaskCard extends StatelessWidget {
 }
 
 /* -----------------------------> COMPONENTS <------------------------------ */
-class _Tile extends StatelessWidget {
-  const _Tile({
+class Tile extends StatelessWidget {
+  const Tile({
     required this.dotColor,
     required this.title,
     required this.subtitle,
@@ -195,8 +195,8 @@ class _Tile extends StatelessWidget {
   }
 }
 
-class _IconButton extends StatelessWidget {
-  const _IconButton({
+class IconButtons extends StatelessWidget {
+  const IconButtons({
     required this.iconData,
     required this.totalContributors,
     required this.onPressed,

@@ -6,43 +6,44 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
+import 'package:visual_planner/Core/models/commonData.dart';
+import 'package:visual_planner/Features/Dashboard%20Screen/SprintScreen/sprint.dart';
 import 'package:visual_planner/Features/Dashboard%20Screen/TaskScreen/TaskScreen.dart';
+import 'package:visual_planner/Features/Dashboard%20Screen/TaskScreen/taskshowModel.dart';
+import 'package:visual_planner/Features/Dashboard%20Screen/components/components/recent_messages.dart';
+import 'package:visual_planner/Features/Splash%20Screen/splash_screen.dart';
 
-import '../../Core/controllers/dashboardController.dart';
-import '../../Core/helper/helper.dart';
-import '../../Core/models/commonData.dart';
-import '../Dashboard Screen/SprintScreen/sprint.dart';
-import '../Dashboard Screen/TaskScreen/showAddedTask.dart';
-import '../Dashboard Screen/TaskScreen/taskshowModel.dart';
-import '../Dashboard Screen/components/components/active_project_card.dart';
-import '../Dashboard Screen/components/components/overview_header.dart';
-import '../Dashboard Screen/components/components/recent_messages.dart';
-import '../Dashboard Screen/components/components/team_member.dart';
-import '../Dashboard Screen/components/shared_components/chatting_card.dart';
-import '../Dashboard Screen/components/shared_components/get_premium_card.dart';
-import '../Dashboard Screen/components/shared_components/list_profile_image.dart';
-import '../Dashboard Screen/components/shared_components/project_card.dart';
-import '../Dashboard Screen/components/shared_components/responsive_builder.dart';
-import '../Dashboard Screen/components/shared_components/task_card.dart';
-import '../Splash Screen/splash_screen.dart';
+import '../../../Core/controllers/dashboardController.dart';
+import '../../../Core/helper/helper.dart';
+import '../components/components/active_project_card.dart';
+import '../components/components/overview_header.dart';
+import '../components/components/team_member.dart';
+import '../components/shared_components/chatting_card.dart';
+import '../components/shared_components/get_premium_card.dart';
+import '../components/shared_components/list_profile_image.dart';
+import '../components/shared_components/project_card.dart';
+import '../components/shared_components/task_card.dart';
 
-class SprintDetailsScreen extends StatefulWidget {
-  SprintDetailsScreen({required this.data, super.key});
-  dynamic data;
+class ShowAddedTask extends StatefulWidget {
+  ShowAddedTask({required this.Sprintname, required this.Sprintid, super.key});
+  String Sprintname;
+  String Sprintid;
 
   @override
-  State<SprintDetailsScreen> createState() => _SprintDetailsScreenState();
+  State<ShowAddedTask> createState() => _SprintDetailsScreenState();
 }
 
 final dashboardController = DashboardController();
 
-class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
+class _SprintDetailsScreenState extends State<ShowAddedTask> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    Axis headerAxis = Axis.horizontal;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       key: dashboardController.scafolKey,
@@ -50,144 +51,22 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
           preferredSize: const Size.fromHeight(60),
           child: CommonAppBar(
             ScreenName: "Tasks Details",
-            // customwidget: Padding(
-            //   padding: EdgeInsets.only(left: Get.width / 7),
-            //   child: IconButton(icon: Icon(Icons.add), onPressed: () {}),
-            // ),
           )),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
             children: [
-              Card(
-                color: Colors.amber[100],
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Add Task',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () {
-                          FirebaseFirestore.instance
-                              .collection("Invitations")
-                              .where(
-                                "sprintName",
-                                isEqualTo: widget.data["sprintName"],
-                              )
-                              .where("status", isEqualTo: "Accepted")
-                              .get()
-                              .then((value) {
-                            if (value.docs.length > 0) {
-                              List member = [];
-                              for (var i = 0; i < value.docs.length; i++) {
-                                member.add(value.docs[i]["recipientEmails"]);
-                              }
-
-                              log("here is the member $member");
-
-                              // var data = value.docs[].data();
-                              Get.to(TaskScreen(
-                                member: member,
-                                data: widget.data,
-                              ));
-                            } else {
-                              Get.snackbar("Error",
-                                  "No Member Accept Invaition in this Sprint");
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: kSpacing * 2),
+              OverviewHeader(
+                axis: Axis.vertical,
+                onSelected: (task) {},
               ),
-              StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection("Invitations")
-                    .where(
-                      "sprintName",
-                      isEqualTo: widget.data["sprintName"],
-                    )
-                    .where("status", isEqualTo: "Accepted")
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.data!.docs.isEmpty) {
-                    return Center(
-                        child: Text(
-                      "No task Yet",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ));
-                  } else {
-                    return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 1,
-                        itemBuilder: (context, index) {
-                          var data = snapshot.data!.docs[index];
-
-                          taskModel activetask = taskModel
-                              .fromJson(snapshot.data!.docs[index].data());
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TeamMember(
-                                totalMember: snapshot.data!.docs.length,
-                                onPressedAdd: () {},
-                              ),
-                              const SizedBox(height: kSpacing / 2),
-                              Stack(
-                                alignment: Alignment.centerRight,
-                                children: _getLimitImage(
-                                        dashboardController.getMember(),
-                                        snapshot.data!.docs.length)
-                                    .asMap()
-                                    .entries
-                                    .map(
-                                      (e) => Padding(
-                                        padding: EdgeInsets.only(
-                                            right: (e.key * 25.0)),
-                                        child: _image(
-                                          e.value,
-                                          onPressed: () {},
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                              )
-                            ],
-                          );
-                        });
-                  }
-                },
-              ),
-
-              fixheight,
-              // const SizedBox(height: kSpacing),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-              //   child: GetPremiumCard(onPressed: () {}),
-              // ),
-              const SizedBox(height: kSpacing),
               StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection('Tasks')
-                    .where('taskProjectId', isEqualTo: widget.data["projectId"])
-                    .where('taskSprint', isEqualTo: widget.data["sprintName"])
+                    .where('taskProjectId', isEqualTo: widget.Sprintid)
+                    .where('taskSprint', isEqualTo: widget.Sprintname)
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
@@ -214,9 +93,9 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
 
                           return InkWell(
                             onTap: () {
-                              // Get.to(ShowAddedTask(
-                              //     Sprintid: data["projectId"],
-                              //     Sprintname: data["sprintName"]));
+                              Get.to(ShowAddedTask(
+                                  Sprintid: data["projectId"],
+                                  Sprintname: data["sprintName"]));
                             },
                             child: Container(
                               constraints: const BoxConstraints(maxWidth: 300),
@@ -238,10 +117,16 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                         "green"
                                                     ? Colors.green
                                                     : Colors.yellow,
+
                                         title: activetask.taskName.toString(),
                                         subtitle: "assigned from" +
                                             activetask.taskProjectManager
                                                 .toString(),
+                                        // subtitle: "Due in " +
+                                        //     ((activetask.dueto! > 1)
+                                        //         ? "${activetask.dueto} days"
+                                        //         : "today"),
+                                        //         ((data.dueDay > 1) ? "${data.dueDay} days" : "today"),
                                         onPressedMore: () {},
                                       ),
                                     ),
@@ -354,6 +239,10 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                               activetask.taskStatus.toString(),
                                             ),
                                           ),
+                                          // ListProfilImage(
+                                          //   images: activetask.taskMember,
+                                          //   // onPressed: onPressedContributors,
+                                          // ),
                                         ],
                                       ),
                                     ),
@@ -362,8 +251,6 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: kSpacing / 2),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           IconButtons(
                                             iconData:
@@ -432,41 +319,6 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                                               : data["commentedBy"]),
                                                                           subtitle:
                                                                               Text(data["comment"]),
-                                                                          // trailing: IconButton(
-                                                                          //     icon: Icon(Icons.delete),
-                                                                          //     onPressed: () {
-                                                                          //       FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").where("comment", isEqualTo: data["comment"]).get().then((value) {
-                                                                          //         log("here is ${value.docs[index]}");
-                                                                          //         // FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").doc(value.docs[0].id).delete();
-                                                                          //       });
-                                                                          //     }),
-                                                                          //   SizedBox(
-                                                                          // width:
-                                                                          //     100,
-                                                                          // child:
-                                                                          //     Row(
-                                                                          //   children: [
-                                                                          //     IconButton(
-                                                                          //         icon: Icon(Icons.delete),
-                                                                          //         onPressed: () {
-                                                                          //           FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").doc(data.id).delete();
-                                                                          //         }),
-                                                                          //     Column(
-                                                                          //       children: [
-                                                                          //         IconButton(
-                                                                          //             icon: Icon(Icons.favorite),
-                                                                          //             onPressed: () {
-                                                                          //               FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").doc(data.id).update({
-                                                                          //                 "likes": FieldValue.increment(1)
-                                                                          //               });
-                                                                          //             }),
-                                                                          //         Text(data["likes"].toString())
-                                                                          //       ],
-                                                                          //     ),
-                                                                          //   ],
-                                                                          // ),
-
-                                                                          // ),
                                                                         );
                                                                       });
                                                             },
@@ -528,8 +380,8 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                                             "likes":
                                                                                 0,
                                                                           });
-                                                                          commentController
-                                                                              .clear();
+                                                                          commentController.text =
+                                                                              "";
                                                                         },
                                                                       )),
                                                             ),
@@ -540,35 +392,11 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                             totalContributors: 2,
                                           ),
                                           const SizedBox(width: kSpacing / 2),
-                                          SizedBox(
-                                            width: 100,
-                                            height: 30,
-                                            child: ListView.builder(
-                                                // shrinkWrap: true,
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: activetask
-                                                    .taskMember!.length,
-                                                itemBuilder: (context, index) {
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      // Tooltip(
-                                                      //   message: activetask.taskMember![index][0],
-                                                      //   child: Text(activetask.taskMember![index][0]),
-                                                      // );
-                                                    },
-                                                    child: Tooltip(
-                                                      message: activetask
-                                                          .taskMember![index],
-                                                      child: CircleAvatar(
-                                                        child: Text(activetask
-                                                                .taskMember![
-                                                            index][0]),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                          ),
+                                          // IconButton(
+                                          //   iconData: EvaIcons.peopleOutline,
+                                          //   onPressed: ,
+                                          //   totalContributors: data.totalContributors,
+                                          // ),
                                         ],
                                       ),
                                     ),
@@ -582,15 +410,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                   }
                 },
               ),
-
               const SizedBox(height: kSpacing * 2),
-              // buildActiveProject(
-              //   data: dashboardController.getActiveProject(),
-              //   crossAxisCount: 6,
-              //   crossAxisCellCount: 6,
-              // ),
-              // const SizedBox(height: kSpacing),
-              // buildRecentMessages(data: dashboardController.getChatting()),
             ],
           ),
         ),
@@ -602,7 +422,6 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
     required List<TaskCardData> data,
     int crossAxisCount = 6,
     int crossAxisCellCount = 2,
-    Axis headerAxis = Axis.horizontal,
   }) {
     return StaggeredGridView.countBuilder(
       crossAxisCount: crossAxisCount,
@@ -615,7 +434,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
             ? Padding(
                 padding: const EdgeInsets.only(bottom: kSpacing),
                 child: OverviewHeader(
-                  axis: headerAxis,
+                  // axis: headerAxis,
                   onSelected: (task) {},
                 ),
               )
@@ -684,54 +503,9 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
             onPressedAdd: () {},
           ),
           const SizedBox(height: kSpacing / 2),
-          Stack(
-            alignment: Alignment.centerRight,
-            children: _getLimitImage(data, 6)
-                .asMap()
-                .entries
-                .map(
-                  (e) => Padding(
-                    padding: EdgeInsets.only(right: (e.key * 25.0)),
-                    child: _image(
-                      e.value,
-                      onPressed: () {},
-                    ),
-                  ),
-                )
-                .toList(),
-          )
+          ListProfilImage(maxImages: 6, images: data),
         ],
       ),
     );
   }
-}
-
-List<ImageProvider> _getLimitImage(List<ImageProvider> images, int limit) {
-  if (images.length <= limit) {
-    return images;
-  } else {
-    List<ImageProvider> result = [];
-    for (int i = 0; i < limit; i++) {
-      result.add(images[i]);
-    }
-    return result;
-  }
-}
-
-Widget _image(ImageProvider image, {Function()? onPressed}) {
-  return InkWell(
-    onTap: onPressed,
-    borderRadius: BorderRadius.circular(20),
-    child: Container(
-      padding: const EdgeInsets.all(1),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Theme.of(Get.context!).cardColor,
-      ),
-      child: CircleAvatar(
-        backgroundImage: image,
-        radius: 15,
-      ),
-    ),
-  );
 }

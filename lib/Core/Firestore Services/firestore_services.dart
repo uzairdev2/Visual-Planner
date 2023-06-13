@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,13 +19,15 @@ class FirestoreService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
 // Getting All user data from Firestore database
-  Future<List<Users>> getAllUsersData() async {
-    final users = <Users>[];
+  Future<List<UserModels>> getAllUsersData() async {
+    final users = <UserModels>[];
     final snapshot = await _db.collection('userCredential').get();
 
     for (final doc in snapshot.docs) {
-      final user = Users.fromJson(doc.data());
+      final user = UserModels.fromJson(doc.data());
+      log("herei s $user");
       users.add(user);
+      log("herei s ${users.length}");
     }
 
     return users;
@@ -91,12 +94,12 @@ class FirestoreService {
     // Check if the user already has a project
     QuerySnapshot querySnapshot = await projectsCollection
         .where('userId', isEqualTo: userId)
-        .limit(1)
+        .limit(2)
         .get(); // limit to 1 project
-    if (querySnapshot.size > 0) {
+    if (querySnapshot.size > 2) {
       // user already has a project, show message and return
       costumSnackbar('Cannot Create Project',
-          'You have already created a project. You cannot create another project.');
+          'You have already created 2 project. You cannot create another project.');
       return;
     }
 
@@ -125,7 +128,7 @@ class FirestoreService {
       'userName': userName
     });
 
-    Get.toNamed(Routes.ProjectList);
+    Get.offNamed(Routes.ProjectList);
   }
 
 /* -----------------------------> Check Sprints Collection Exists <------------------------------ */

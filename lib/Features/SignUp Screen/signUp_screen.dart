@@ -143,6 +143,7 @@ class SignUp extends StatelessWidget {
                     },
                   ),
                   CommonTextField(
+                    enablestate: 2,
                     icon: Icons.fingerprint,
                     hintText: "Password",
                     controller: passwordController,

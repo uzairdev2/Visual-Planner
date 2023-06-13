@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -7,6 +9,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:visual_planner/Core/models/Users%20Data/json_model.dart';
+import 'package:visual_planner/Core/models/commonData.dart';
+import 'package:visual_planner/Features/Splash%20Screen/splash_screen.dart';
 
 import '../../common/common_snackBar.dart';
 import '../../routes/routes.dart';
@@ -68,10 +73,28 @@ class AuthController with ChangeNotifier {
     // Store the user's email in SharedPreferences
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
-    sharedPreferences.setString('email', userEmail);
+    await sharedPreferences.setString('email', userEmail);
+    await sharedPreferences.setString('userid', userCredential.user!.uid);
+
+    userid = sharedPreferences.getString("userid");
 
     // Navigate to the dashboard screen
-    Get.toNamed(Routes.dashboard);
+    final data = await FirebaseFirestore.instance
+        .collection('userCredential')
+        .doc(userProfile.uid)
+        .get();
+    if (data.exists) {
+      log("data fount");
+
+      commonModel = UserModels.fromJson(data.data());
+
+      Get.offAllNamed(Routes.dashboard);
+
+      // log("Admin data ===> ${companyData.toJson()}");
+      // log("Admin data ===> ${companyData.companyName}");
+      // log("Admin data ===> ${companyData.companyUid}");
+    }
+    ;
     notifyListeners();
   }
 
@@ -120,17 +143,38 @@ class AuthController with ChangeNotifier {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
+      commonModel.email = emailController.text;
+      commonModel.name = userNameController.text;
+      commonModel.phone = phoneController.text;
+      commonModel.profileImageUrl =
+          'https://firebasestorage.googleapis.com/v0/b/virtual-planner-22a5c.appspot.com/o/profile_images%2Fuser%20(4).png?alt=media&token=344b3015-a9a9-4d7e-ba0e-345069e9e28f';
+      commonModel.userid = userCredential.user!.uid;
       FirebaseFirestore.instance
           .collection('userCredential')
           .doc(userCredential.user!.uid)
-          .set({
-        'user_Id': userCredential.user!.uid,
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'profileImageUrl':
-            'https://firebasestorage.googleapis.com/v0/b/virtual-planner-22a5c.appspot.com/o/profile_images%2Fuser%20(4).png?alt=media&token=344b3015-a9a9-4d7e-ba0e-345069e9e28f',
-      });
+          .set(commonModel.toJson());
+
+      final SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      await sharedPreferences.setString('email', email);
+      await sharedPreferences.setString('userid', userCredential.user!.uid);
+
+      userid = sharedPreferences.getString("userid");
+      log("here is google  $userid");
+
+      final data = await FirebaseFirestore.instance
+          .collection('userCredential')
+          .doc(userCredential.user!.uid)
+          .get();
+      if (data.exists) {
+        log("data fount");
+
+        commonModel = UserModels.fromJson(data.data());
+
+        log("Admin data ===> ${commonModel.userid}");
+        // log("Admin data ===> ${companyData.companyName}");
+        // log("Admin data ===> ${companyData.companyUid}");
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         Navigator.of(context).pop();
@@ -156,10 +200,8 @@ class AuthController with ChangeNotifier {
       );
       return;
     }
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    sharedPreferences.setString('email', email);
-    Get.toNamed(Routes.dashboard);
+
+    Get.offAllNamed(Routes.dashboard);
 
     QuickAlert.show(
       context: context,
@@ -210,7 +252,25 @@ class AuthController with ChangeNotifier {
       if (userCredential.user != null) {
         Navigator.of(context).pop();
 
-        Get.toNamed(Routes.dashboard);
+        final SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        await sharedPreferences.setString('email', email);
+        await sharedPreferences.setString('userid', userCredential.user!.uid);
+
+        userid = sharedPreferences.getString("userid");
+        log("here is login id $userid");
+
+        var data = await FirebaseFirestore.instance
+            .collection('userCredential')
+            .doc(userCredential.user!.uid)
+            .get();
+        if (data.exists) {
+          log("data found");
+
+          commonModel = UserModels.fromJson(data.data());
+
+          Get.offAllNamed(Routes.dashboard);
+        }
       } else {
         costumSnackbar("Some Error", "User Not Found");
       }
@@ -231,10 +291,6 @@ class AuthController with ChangeNotifier {
 
       return;
     }
-
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    sharedPreferences.setString('email', email);
 
     QuickAlert.show(
       context: context,

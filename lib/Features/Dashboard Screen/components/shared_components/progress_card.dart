@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:visual_planner/Core/models/commonData.dart';
+import 'package:visual_planner/Features/Splash%20Screen/splash_screen.dart';
 
 import '../../../../Core/helper/helper.dart';
 import '../../../Project List Screen/project_list_screen.dart';
@@ -43,10 +45,10 @@ class _ProgressCardState extends State<ProgressCard> {
   }
 
   Future<void> _loadProjects() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    // final currentUser = FirebaseAuth.instance.currentUser;
     final projectsRef = FirebaseFirestore.instance
         .collection('Projects')
-        .where('userId', isEqualTo: currentUser!.uid);
+        .where('userId', isEqualTo: userid);
     final projectsSnapshot = await projectsRef.get();
     final loadedProjects = projectsSnapshot.docs
         .map((project) => Project(

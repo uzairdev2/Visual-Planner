@@ -26,18 +26,17 @@ class UpgradePremiumCard extends StatelessWidget {
             minWidth: 200,
             maxWidth: 250,
             minHeight: 150,
-            maxHeight: 250,
+            maxHeight: 290,
           ),
           padding: const EdgeInsets.all(10),
           child: Stack(
             children: const [
-              Padding(
-                padding: EdgeInsets.only(
-                  top: 80,
-                ),
+              Positioned(
+                top: 120,
                 child: Image(
                   image: AssetImage("assets/images/happy.png"),
-                  fit: BoxFit.fitHeight,
+                  height: 150,
+                  width: 150,
                 ),
               ),
               Padding(

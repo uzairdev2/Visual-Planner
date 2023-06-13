@@ -93,6 +93,7 @@ class Login extends StatelessWidget {
                     draggable: false,
                   ),
                   CommonTextField(
+                    enablestate: 2,
                     icon: Icons.fingerprint,
                     hintText: "Password",
                     controller: passwordController,
@@ -169,7 +170,7 @@ class Login extends StatelessWidget {
                           if (Get.previousRoute == '/signUp') {
                             Get.back();
                           } else {
-                            Get.toNamed(Routes.signUp);
+                            Get.offNamed(Routes.signUp);
                           }
                         },
                         child: Text(

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:visual_planner/Core/common/wide_filled_button.dart';
 import 'package:visual_planner/Core/routes/routes.dart';
 
@@ -266,7 +267,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   WideFilledButton(
                       btnText: 'Sign Out',
-                      onTap: () {
+                      onTap: () async {
+                        final SharedPreferences sharedPreferences =
+                            await SharedPreferences.getInstance();
+
+
+                            
+
                         QuickAlert.show(
                           context: context,
                           type: QuickAlertType.confirm,
@@ -277,8 +284,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onConfirmBtnTap: () async {
                             final signOut = Provider.of<AuthController>(context,
                                 listen: false);
+
+                            await sharedPreferences.clear();
                             signOut.logout();
-                            Get.toNamed(Routes.login);
+                            Get.offAllNamed(Routes.login);
                           },
                         );
                       })

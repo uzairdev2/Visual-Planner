@@ -52,11 +52,11 @@ class SIDEBAR extends StatelessWidget {
                   icon: EvaIcons.listOutline,
                   label: "List",
                 ),
-                SelectionButtonData(
-                  activeIcon: EvaIcons.person,
-                  icon: EvaIcons.personOutline,
-                  label: "Board",
-                ),
+                // SelectionButtonData(
+                //   activeIcon: EvaIcons.person,
+                //   icon: EvaIcons.personOutline,
+                //   label: "Board",
+                // ),
                 SelectionButtonData(
                   activeIcon: EvaIcons.email,
                   icon: EvaIcons.emailOutline,
