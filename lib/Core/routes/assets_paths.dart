@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class ImageRasterPath {
   static const _folderPath = "assets/images";
   static const avatar1 = "$_folderPath/avatar-1.png";

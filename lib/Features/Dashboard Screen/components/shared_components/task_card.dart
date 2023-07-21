@@ -97,14 +97,13 @@ class TaskCard extends StatelessWidget {
                   IconButtons(
                     iconData: EvaIcons.messageCircleOutline,
                     onPressed: onPressedComments,
-                    totalContributors: data.totalComments,
+                   
                   ),
                   const SizedBox(width: kSpacing / 2),
                   IconButtons(
                     iconData: EvaIcons.peopleOutline,
                     onPressed: onPressedContributors,
-                    totalContributors: data.totalContributors,
-                  ),
+                 ),
                 ],
               ),
             ),
@@ -198,13 +197,13 @@ class Tile extends StatelessWidget {
 class IconButtons extends StatelessWidget {
   const IconButtons({
     required this.iconData,
-    required this.totalContributors,
+    
     required this.onPressed,
     Key? key,
   }) : super(key: key);
 
   final IconData iconData;
-  final int totalContributors;
+  
   final Function() onPressed;
 
   @override
@@ -218,7 +217,7 @@ class IconButtons extends StatelessWidget {
       ),
       onPressed: onPressed,
       icon: _icon(iconData),
-      label: _label("$totalContributors"),
+      label: _label(""),
     );
   }
 

@@ -12,14 +12,23 @@ import '../../Core/controllers/Auth Controllers/auth_controllers.dart';
 import '../../Core/helper/helper.dart';
 import '../../Core/routes/routes.dart';
 
-class SignUp extends StatelessWidget {
-  SignUp({Key? key}) : super(key: key);
-  final TextEditingController userNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  // final TextEditingController addressController = TextEditingController();
+class SignUp extends StatefulWidget {
+  const SignUp({Key? key}) : super(key: key);
 
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+  final TextEditingController userNameController = TextEditingController();
+
+  final TextEditingController emailController = TextEditingController();
+
+  final TextEditingController phoneController = TextEditingController();
+
+  final TextEditingController passwordController = TextEditingController();
+
+  // final TextEditingController addressController = TextEditingController();
   final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   final RegExp phoneRegex = RegExp(r'^\+?\d{8,15}$');
@@ -30,6 +39,8 @@ class SignUp extends StatelessWidget {
     phoneController.clear();
     passwordController.clear();
   }
+
+  bool _isObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +154,17 @@ class SignUp extends StatelessWidget {
                     },
                   ),
                   CommonTextField(
-                    enablestate: 2,
+                    isAbsecure: _isObscured,
+                    iconButton: IconButton(
+                      icon: Icon(
+                        _isObscured ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObscured = !_isObscured;
+                        });
+                      },
+                    ),
                     icon: Icons.fingerprint,
                     hintText: "Password",
                     controller: passwordController,
@@ -189,17 +210,13 @@ class SignUp extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't Have Account?",
+                        "Have an Account?",
                         style: GoogleFonts.poppins(
                             fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       GestureDetector(
                         onTap: () {
-                          if (Get.previousRoute == '/login') {
-                            Get.back();
-                          } else {
-                            Get.toNamed(Routes.login);
-                          }
+                          Get.toNamed(Routes.login);
                         },
                         child: Text(
                           "Login",

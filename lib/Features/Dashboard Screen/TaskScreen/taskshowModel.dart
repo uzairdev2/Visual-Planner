@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class taskModel {
   String? taskDeadline;
   String? taskDescription;
@@ -15,6 +13,7 @@ class taskModel {
   String? userid;
   String? dueto;
   String? taskStatusColor;
+  String? taskStatusColor2;
 
   taskModel({
     this.taskDeadline,
@@ -31,6 +30,7 @@ class taskModel {
     this.userid,
     this.dueto,
     this.taskStatusColor,
+    this.taskStatusColor2,
   });
 
   taskModel.fromJson(json) {
@@ -48,6 +48,7 @@ class taskModel {
     userid = json['userid'];
     dueto = json['dueto'];
     taskStatusColor = json['taskStatusColor'];
+    taskStatusColor2 = json['taskStatusColor2'];
   }
 
   Map<String, dynamic> toJson() {
@@ -66,6 +67,7 @@ class taskModel {
     data['userid'] = userid;
     data['dueto'] = dueto;
     data['taskStatusColor'] = taskStatusColor;
+    data['taskStatusColor2'] = taskStatusColor2;
     return data;
   }
 }

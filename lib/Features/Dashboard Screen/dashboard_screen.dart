@@ -16,12 +16,7 @@ import 'TaskScreen/showAddedTask.dart';
 import 'components/components/header.dart';
 import 'components/components/profile_tile.dart';
 import 'components/components/sidebar.dart';
-import 'components/components/team_member.dart';
-import 'components/shared_components/get_premium_card.dart';
-import 'components/shared_components/list_profile_image.dart';
 import 'components/shared_components/progress_card.dart';
-import 'components/shared_components/progress_report_card.dart';
-import 'components/shared_components/responsive_builder.dart';
 import '../../Core/helper/helper.dart';
 import '../../Core/models/profile.dart';
 
@@ -80,7 +75,7 @@ class DashboardScreen extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.data!.docs.isEmpty) {
-                  return Center(
+                  return const Center(
                       child: Text(
                     "No Sprint here",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -98,7 +93,7 @@ class DashboardScreen extends StatelessWidget {
                           child: CircularProgressIndicator(),
                         );
                       } else if (snapshot.data!.docs.isEmpty) {
-                        return Center(
+                        return const Center(
                             child: Text(
                           "",
                           style: TextStyle(
@@ -113,6 +108,7 @@ class DashboardScreen extends StatelessWidget {
 
                                 return InkWell(
                                     onTap: () {
+                                      log("onteb");
                                       Get.to(ShowAddedTask(
                                           Sprintid: data["projectId"],
                                           Sprintname: data["sprintName"]));
@@ -120,7 +116,7 @@ class DashboardScreen extends StatelessWidget {
                                     child: Card(
                                       child: Container(
                                         height: 180,
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 14, vertical: 10),
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
@@ -243,9 +239,9 @@ class DashboardScreen extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "No Project Yet",
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 22,
                                     ),

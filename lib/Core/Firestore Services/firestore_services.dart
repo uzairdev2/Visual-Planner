@@ -7,7 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:visual_planner/Features/Add%20Sprint%20Screen/add_sprint_screen.dart';
 
 import '../common/common_snackBar.dart';
 import '../models/Users Data/json_model.dart';
@@ -70,8 +69,6 @@ class FirestoreService {
     TextEditingController projectNameController,
     TextEditingController descriptionController,
   ) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? user1 = auth.currentUser;
     // Get the values from the text fields
     var projectName = projectNameController.text.trim();
     var description = descriptionController.text.trim();
@@ -104,6 +101,7 @@ class FirestoreService {
     }
 
     //Progress bar
+    // ignore: use_build_context_synchronously
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,

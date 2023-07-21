@@ -2,17 +2,12 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
 import 'package:visual_planner/Core/models/commonData.dart';
 import 'package:visual_planner/Features/Dashboard%20Screen/SprintScreen/sprint.dart';
-import 'package:visual_planner/Features/Dashboard%20Screen/TaskScreen/TaskScreen.dart';
 import 'package:visual_planner/Features/Dashboard%20Screen/TaskScreen/taskshowModel.dart';
 import 'package:visual_planner/Features/Dashboard%20Screen/components/components/recent_messages.dart';
 import 'package:visual_planner/Features/Splash%20Screen/splash_screen.dart';
@@ -23,14 +18,17 @@ import '../components/components/active_project_card.dart';
 import '../components/components/overview_header.dart';
 import '../components/components/team_member.dart';
 import '../components/shared_components/chatting_card.dart';
-import '../components/shared_components/get_premium_card.dart';
 import '../components/shared_components/list_profile_image.dart';
 import '../components/shared_components/project_card.dart';
 import '../components/shared_components/task_card.dart';
 
+// ignore: must_be_immutable
 class ShowAddedTask extends StatefulWidget {
+  // ignore: non_constant_identifier_names
   ShowAddedTask({required this.Sprintname, required this.Sprintid, super.key});
+  // ignore: non_constant_identifier_names
   String Sprintname;
+  // ignore: non_constant_identifier_names
   String Sprintid;
 
   @override
@@ -42,7 +40,10 @@ final dashboardController = DashboardController();
 class _SprintDetailsScreenState extends State<ShowAddedTask> {
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final size = MediaQuery.of(context).size;
+
+    // ignore: unused_local_variable
     Axis headerAxis = Axis.horizontal;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -74,7 +75,7 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (snapshot.data!.docs.isEmpty) {
-                    return Center(
+                    return const Center(
                         child: Text(
                       "No task Yet",
                       style:
@@ -107,28 +108,30 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(5),
-                                      child: Tile(
-                                        dotColor:
-                                            activetask.taskStatusColor == "red"
-                                                ? Colors.red
-                                                : activetask.taskStatusColor ==
-                                                        "green"
-                                                    ? Colors.green
-                                                    : Colors.yellow,
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(5),
+                                          child: Tile(
+                                            dotColor:
+                                                activetask.taskStatusColor == "red"
+                                                    ? Colors.red
+                                                    : activetask.taskStatusColor ==
+                                                            "green"
+                                                        ? Colors.green
+                                                        : Colors.yellow,
 
-                                        title: activetask.taskName.toString(),
-                                        subtitle: "assigned from" +
-                                            activetask.taskProjectManager
-                                                .toString(),
-                                        // subtitle: "Due in " +
-                                        //     ((activetask.dueto! > 1)
-                                        //         ? "${activetask.dueto} days"
-                                        //         : "today"),
-                                        //         ((data.dueDay > 1) ? "${data.dueDay} days" : "today"),
-                                        onPressedMore: () {},
-                                      ),
+                                            title: activetask.taskName.toString(),
+                                            subtitle:
+                                                "assigned from  ${activetask.taskProjectManager}",
+                                           onPressedMore: () {
+                                           
+                                           },
+                                         
+                                          ),
+                                        ),
+                            
+                                      ],
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -177,7 +180,7 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                         });
                                                         Get.back();
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         "Todo",
                                                       ),
                                                     ),
@@ -200,7 +203,7 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                         });
                                                         Get.back();
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         "In Progress",
                                                       ),
                                                     ),
@@ -224,7 +227,7 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                         });
                                                         Get.back();
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         "Complete",
                                                       ),
                                                     ),
@@ -250,9 +253,8 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: kSpacing / 2),
-                                      child: Row(
-                                        children: [
-                                          IconButtons(
+                                      
+                                         child: IconButtons(
                                             iconData:
                                                 EvaIcons.messageCircleOutline,
                                             onPressed: () {
@@ -260,7 +262,8 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                   commentController =
                                                   TextEditingController();
                                               Get.bottomSheet(Container(
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 20.0),
                                                   height: 500,
                                                   decoration: BoxDecoration(
@@ -291,7 +294,7 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                                       .connectionState ==
                                                                   ConnectionState
                                                                       .waiting) {
-                                                                return Center(
+                                                                return const Center(
                                                                     child:
                                                                         CircularProgressIndicator());
                                                               }
@@ -326,13 +329,13 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                       Expanded(
                                                           flex: 2,
                                                           child: Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                        .symmetric(
                                                                     horizontal:
                                                                         10),
-                                                            decoration: BoxDecoration(
-                                                                border: Border(
-                                                                    top: BorderSide(
+                                                            decoration: const BoxDecoration(
+                                                                border: Border(top: BorderSide(
                                                                         color: Colors
                                                                             .grey))),
                                                             child:
@@ -352,7 +355,7 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                                           "Type a comment",
                                                                       suffixIcon:
                                                                           IconButton(
-                                                                        icon: Icon(
+                                                                        icon: const Icon(
                                                                             Icons.send),
                                                                         onPressed:
                                                                             () {
@@ -389,16 +392,11 @@ class _SprintDetailsScreenState extends State<ShowAddedTask> {
                                                     ],
                                                   )));
                                             },
-                                            totalContributors: 2,
+                                          
+
                                           ),
-                                          const SizedBox(width: kSpacing / 2),
-                                          // IconButton(
-                                          //   iconData: EvaIcons.peopleOutline,
-                                          //   onPressed: ,
-                                          //   totalContributors: data.totalContributors,
-                                          // ),
-                                        ],
-                                      ),
+                                         
+                                       
                                     ),
                                     const SizedBox(height: kSpacing / 2),
                                   ],

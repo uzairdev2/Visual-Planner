@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:visual_planner/Core/models/commonData.dart';
 
 import '../../Splash Screen/splash_screen.dart';
-import '../InvaitionScreen/invaitionScreen.dart';
+import '../InvaitionScreen/invitionScreen.dart';
+import 'package:get/get.dart';
 
+// ignore: must_be_immutable
 class TaskScreen extends StatefulWidget {
   TaskScreen({required this.data, required this.member, super.key});
   dynamic data;
@@ -18,7 +18,7 @@ class TaskScreen extends StatefulWidget {
 }
 
 class _TaskScreenState extends State<TaskScreen> {
-  @override
+  // ignore: prefer_final_fields
   List _selectedUsers = [];
 
   bool _isSelected(String name) {
@@ -29,106 +29,120 @@ class _TaskScreenState extends State<TaskScreen> {
     }
   }
 
-  TextEditingController _taskName = TextEditingController();
-  TextEditingController _taskDescription = TextEditingController();
-  TextEditingController _taskDeadline = TextEditingController();
+  final TextEditingController _taskName = TextEditingController();
+  final TextEditingController _taskDescription = TextEditingController();
+  final TextEditingController _taskDeadline = TextEditingController();
   DateTime? _selectedDate;
 
   @override
   Widget build(BuildContext context) {
+    String selectedMember = widget.member[
+        0]; // Set the initial selected member to the first member in the list
+
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: CommonAppBar(
-            ScreenName: "Task CreateScreen",
+            ScreenName: "Create a Task",
           )),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: Column(
             children: [
-              Text("Select Team Member"),
-              SizedBox(
+              const Text("Select Team Member"),
+              const SizedBox(
                 height: 10,
               ),
-              SizedBox(
-                height: 60,
-                // width: double.infinity,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: widget.member.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: EdgeInsets.all(5),
+              DropdownButton<String>(
+                value: selectedMember,
+                hint: Text('Please select a user'), // Add a hint text
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedMember = newValue!;
+                    // Call a separate function to handle updating selected users
+                  });
+                },
+                items: (widget.member
+                        .map<String>((dynamic member) => member.toString()))
+                    .map<DropdownMenuItem<String>>((String member) {
+                  return DropdownMenuItem<String>(
+                    value: member,
+                    onTap: () {
+                      setState(() {});
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.amber[100],
                       ),
                       width: 300,
                       child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Checkbox(
-                              value: _isSelected(widget.member[index]),
-                              onChanged: (value) {
-                                if (value == true) {
-                                  setState(() {
-                                    _selectedUsers.add(widget.member[index]);
-                                    log("herei s the selected user $_selectedUsers ${_selectedUsers.length}");
-                                  });
-                                } else {
-                                  setState(() {
-                                    _selectedUsers.remove(widget.member[index]);
-                                    log("herei s the selected user $_selectedUsers ${_selectedUsers.length}");
-                                  });
-                                }
-                              },
-                            ),
-                            Text(widget.member[index]),
-                          ]),
-                    );
-                  },
-                ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            value: _isSelected(member),
+                            onChanged: (value) {
+                              if (value == true) {
+                                setState(() {
+                                  selectedMember = member;
+                                  _selectedUsers.add(member);
+                                  log("here is the selected user $_selectedUsers ${_selectedUsers.length}");
+                                });
+                              } else {
+                                setState(() {
+                                  _selectedUsers.remove(member);
+                                });
+                              }
+                            },
+                          ),
+                          Text(member),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
               fixheight2,
               TextField(
                 controller: _taskName,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Task Name',
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextField(
                 controller: _taskDescription,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Task Description',
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextField(
                 controller: _taskDeadline,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.calendar_today),
+                    icon: const Icon(Icons.calendar_today),
                     onPressed: () => selectDate(context),
                   ),
                   labelText: 'Task Deadline',
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               ElevatedButton(
@@ -137,13 +151,15 @@ class _TaskScreenState extends State<TaskScreen> {
                       _taskDescription.text == "" ||
                       _taskName.text == "") {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text("Please Fill All Fields"),
                       ),
                     );
                   } else {
-                    // for (int i = 0; i < _selectedUsers.length; i++){
-
+                    Get.defaultDialog(
+                      title: "Adding Task",
+                      content: const CircularProgressIndicator(),
+                    );
                     await FirebaseFirestore.instance
                         .collection("Tasks")
                         .doc(DateTime.now().toString())
@@ -162,18 +178,18 @@ class _TaskScreenState extends State<TaskScreen> {
                           "${_selectedDate!.day}-${_selectedDate!.month}-${_selectedDate!.year}",
                       "userid": userid,
                       "taskStatusColor": "red",
+                      "taskStatusColor2": "yellow",
                     });
+                    Get.back();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Task Added Successfully"),
+                      ),
+                    );
                   }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Task Added Successfully"),
-                    ),
-                  );
-                  Navigator.pop(context);
-                  // }
                 },
-                child: Text('Add Task'),
+                child: const Text('Add Task'),
               ),
             ],
           ),

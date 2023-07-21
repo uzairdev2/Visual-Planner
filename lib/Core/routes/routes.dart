@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:visual_planner/Features/Receive%20Invitation%20Screen/receive_invitation_screen.dart';
+import 'package:visual_planner/Features/Dashboard%20Screen/InvaitionScreen/invitionScreen.dart';
 
 import '../../Features/Add Project Screen/add_project_screen.dart';
 import '../../Features/Add Sprint Screen/add_sprint_screen.dart';
@@ -8,7 +8,6 @@ import '../../Features/Dashboard Screen/dashboard_screen.dart';
 import '../../Features/ForgotPassword Screen/forgot_password_screen.dart';
 import '../../Features/Profile Screen/profile_screen.dart';
 import '../../Features/Project List Screen/project_list_screen.dart';
-import '../../Features/Sprint Details Screen/sprint_details_screen.dart';
 import '../../Features/Sprint List Screen/sprintlistScreen.dart';
 import '../../Features/Welcome Screen/welcome_screen.dart';
 import '../../Features/Login Screen/login_screen.dart';
@@ -51,8 +50,7 @@ class Routes {
     GetPage(name: Profile, page: () => const ProfileScreen()),
     GetPage(name: ProjectList, page: () => const ProjectListScreen()),
     GetPage(name: SprintList, page: () => const SprintListScreen()),
-    GetPage(
-        name: ReceiveInvitation, page: () => const ReceiveInvitationScreen()),
+    GetPage(name: ReceiveInvitation, page: () => const InvaitionScreen()),
     // GetPage(name: SprintDetails, page: () => const SprintDetailsScreen()),
   ];
 }

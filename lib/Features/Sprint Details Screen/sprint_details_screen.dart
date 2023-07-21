@@ -2,11 +2,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
 import 'package:visual_planner/Features/Dashboard%20Screen/TaskScreen/TaskScreen.dart';
@@ -15,20 +12,17 @@ import '../../Core/controllers/dashboardController.dart';
 import '../../Core/helper/helper.dart';
 import '../../Core/models/commonData.dart';
 import '../Dashboard Screen/SprintScreen/sprint.dart';
-import '../Dashboard Screen/TaskScreen/showAddedTask.dart';
 import '../Dashboard Screen/TaskScreen/taskshowModel.dart';
 import '../Dashboard Screen/components/components/active_project_card.dart';
 import '../Dashboard Screen/components/components/overview_header.dart';
 import '../Dashboard Screen/components/components/recent_messages.dart';
 import '../Dashboard Screen/components/components/team_member.dart';
 import '../Dashboard Screen/components/shared_components/chatting_card.dart';
-import '../Dashboard Screen/components/shared_components/get_premium_card.dart';
-import '../Dashboard Screen/components/shared_components/list_profile_image.dart';
 import '../Dashboard Screen/components/shared_components/project_card.dart';
-import '../Dashboard Screen/components/shared_components/responsive_builder.dart';
 import '../Dashboard Screen/components/shared_components/task_card.dart';
 import '../Splash Screen/splash_screen.dart';
 
+// ignore: must_be_immutable
 class SprintDetailsScreen extends StatefulWidget {
   SprintDetailsScreen({required this.data, super.key});
   dynamic data;
@@ -67,7 +61,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Add Task',
                         style: TextStyle(
                           fontSize: 16.0,
@@ -125,9 +119,9 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (snapshot.data!.docs.isEmpty) {
-                    return Center(
+                    return const Center(
                         child: Text(
-                      "No task Yet",
+                      "No member",
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ));
@@ -150,24 +144,77 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                 onPressedAdd: () {},
                               ),
                               const SizedBox(height: kSpacing / 2),
-                              Stack(
-                                alignment: Alignment.centerRight,
-                                children: _getLimitImage(
-                                        dashboardController.getMember(),
-                                        snapshot.data!.docs.length)
-                                    .asMap()
-                                    .entries
-                                    .map(
-                                      (e) => Padding(
-                                        padding: EdgeInsets.only(
-                                            right: (e.key * 25.0)),
-                                        child: _image(
-                                          e.value,
-                                          onPressed: () {},
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.centerRight,
+                                    children: _getLimitImage(
+                                            dashboardController.getMember(),
+                                            snapshot.data!.docs.length)
+                                        .asMap()
+                                        .entries
+                                        .map(
+                                          (e) => Padding(
+                                            padding: EdgeInsets.only(
+                                                right: (e.key * 25.0)),
+                                            child: _image(
+                                              e.value,
+                                              onPressed: () {},
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                  IconButton(
+                                      onPressed: () {
+                                        TextEditingController emailcotroller =
+                                            TextEditingController();
+                                        Get.defaultDialog(
+                                          title: "Add Member",
+                                          content: Column(
+                                            children: [
+                                              TextFormField(
+                                                controller: emailcotroller,
+                                                decoration: InputDecoration(
+                                                  hintText: "Enter Email",
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          onCancel: () {},
+                                          onConfirm: () {
+                                            if (emailcotroller.text == "") {
+                                              Get.snackbar("Empty Email",
+                                                  "Please enter email");
+                                              return;
+                                            } else {
+                                              FirebaseFirestore.instance
+                                                  .collection('Invitations')
+                                                  .add({
+                                                'sprintName':
+                                                    widget.data["sprintName"],
+                                                'startingDate':
+                                                    widget.data["startingDate"],
+                                                'endingDate':
+                                                    widget.data["endingDate"],
+                                                'senderEmail':
+                                                    commonModel.email,
+                                                'recipientEmails': emailcotroller
+                                                    .text
+                                                    .trim(), // Create an empty object to store the recipients and their status
+                                                "status": "Pending",
+                                              });
+                                              Get.back();
+                                              Get.snackbar("email",
+                                                  "email added successfully ");
+                                            }
+                                          },
+                                        );
+                                      },
+                                      icon: Icon(Icons.add))
+                                ],
                               )
                             ],
                           );
@@ -177,11 +224,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
               ),
 
               fixheight,
-              // const SizedBox(height: kSpacing),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: kSpacing),
-              //   child: GetPremiumCard(onPressed: () {}),
-              // ),
+
               const SizedBox(height: kSpacing),
               StreamBuilder(
                 stream: FirebaseFirestore.instance
@@ -195,7 +238,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                       child: CircularProgressIndicator(),
                     );
                   } else if (snapshot.data!.docs.isEmpty) {
-                    return Center(
+                    return const Center(
                         child: Text(
                       "No task Yet",
                       style:
@@ -239,9 +282,8 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                     ? Colors.green
                                                     : Colors.yellow,
                                         title: activetask.taskName.toString(),
-                                        subtitle: "assigned from" +
-                                            activetask.taskProjectManager
-                                                .toString(),
+                                        subtitle:
+                                            "assigned from  ${activetask.taskProjectManager}",
                                         onPressedMore: () {},
                                       ),
                                     ),
@@ -292,7 +334,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                         });
                                                         Get.back();
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         "Todo",
                                                       ),
                                                     ),
@@ -315,7 +357,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                         });
                                                         Get.back();
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         "In Progress",
                                                       ),
                                                     ),
@@ -339,7 +381,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                         });
                                                         Get.back();
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         "Complete",
                                                       ),
                                                     ),
@@ -354,6 +396,122 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                               activetask.taskStatus.toString(),
                                             ),
                                           ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              IconButton(
+                                                  onPressed: () {
+                                                    // task priority
+                                                     Get.defaultDialog(
+                                                title: "Task Priority",
+                                                content: Column(
+                                                  children: [
+                                                    ElevatedButton(
+                                                      style: ButtonStyle(
+                                                          backgroundColor:
+                                                              MaterialStateProperty
+                                                                  .all<Color>(
+                                                                      Colors
+                                                                          .red)),
+                                                      onPressed: () {
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection('Tasks')
+                                                            .doc(data.id)
+                                                            .update({
+                
+                                                          'taskStatusColor2':
+                                                              'red'
+                                                        });
+                                                        Get.back();
+                                                      },
+                                                      child: const Text(
+                                                        "High Priority",
+                                                      ),
+                                                    ),
+                                                    ElevatedButton(
+                                                      style: ButtonStyle(
+                                                          backgroundColor:
+                                                              MaterialStateProperty
+                                                                  .all<Color>(Colors
+                                                                      .yellow)),
+                                                      onPressed: () {
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection('Tasks')
+                                                            .doc(data.id)
+                                                            .update({
+                                                          
+                                                          'taskStatusColor2':
+                                                              'yellow'
+                                                        });
+                                                        Get.back();
+                                                      },
+                                                      child: const Text(
+                                                        "Medium Priority",
+                                                      ),
+                                                    ),
+                                                    ElevatedButton(
+                                                      style: ButtonStyle(
+                                                          backgroundColor:
+                                                              MaterialStateProperty
+                                                                  .all<Color>(
+                                                                      Colors
+                                                                          .green)),
+                                                      onPressed: () {
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection('Tasks')
+                                                            .doc(data.id)
+                                                            .update({
+                                                       
+                                                          'taskStatusColor2':
+                                                              'green'
+                                                        });
+                                                        Get.back();
+                                                      },
+                                                      child: const Text(
+                                                        "Low Priority",
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                onCancel: () {
+                                                
+                                                },
+                                              );
+                                                  },
+                                                  icon: Icon(Icons.flag, color: activetask.taskStatusColor2 == "red"?Colors.red : activetask.taskStatusColor2 == "yellow"?Colors.amber:Colors.green,)),
+                                              activetask.taskStatus ==
+                                                      "Complete"
+                                                  ? IconButton(
+                                                      onPressed: () {
+                                                        Get.defaultDialog(
+                                                            title:
+                                                                "Delete ticket",
+                                                            content: const Text(
+                                                                "Are you sure you want to delete this ticket?"),
+                                                            onCancel: () {
+                                                              // Get.back();
+                                                            },
+                                                            onConfirm: () {
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      'Tasks')
+                                                                  .doc(data.id)
+                                                                  .delete();
+                                                            });
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.delete,
+                                                        color: Colors.red,
+                                                        size: 30,
+                                                      ))
+                                                  : SizedBox.shrink(),
+                                            ],
+                                          )
                                         ],
                                       ),
                                     ),
@@ -373,7 +531,8 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                   commentController =
                                                   TextEditingController();
                                               Get.bottomSheet(Container(
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
                                                       horizontal: 20.0),
                                                   height: 500,
                                                   decoration: BoxDecoration(
@@ -404,7 +563,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                                       .connectionState ==
                                                                   ConnectionState
                                                                       .waiting) {
-                                                                return Center(
+                                                                return const Center(
                                                                     child:
                                                                         CircularProgressIndicator());
                                                               }
@@ -432,41 +591,6 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                                               : data["commentedBy"]),
                                                                           subtitle:
                                                                               Text(data["comment"]),
-                                                                          // trailing: IconButton(
-                                                                          //     icon: Icon(Icons.delete),
-                                                                          //     onPressed: () {
-                                                                          //       FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").where("comment", isEqualTo: data["comment"]).get().then((value) {
-                                                                          //         log("here is ${value.docs[index]}");
-                                                                          //         // FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").doc(value.docs[0].id).delete();
-                                                                          //       });
-                                                                          //     }),
-                                                                          //   SizedBox(
-                                                                          // width:
-                                                                          //     100,
-                                                                          // child:
-                                                                          //     Row(
-                                                                          //   children: [
-                                                                          //     IconButton(
-                                                                          //         icon: Icon(Icons.delete),
-                                                                          //         onPressed: () {
-                                                                          //           FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").doc(data.id).delete();
-                                                                          //         }),
-                                                                          //     Column(
-                                                                          //       children: [
-                                                                          //         IconButton(
-                                                                          //             icon: Icon(Icons.favorite),
-                                                                          //             onPressed: () {
-                                                                          //               FirebaseFirestore.instance.collection("Tasks").doc(data.id).collection("Comments").doc(data.id).update({
-                                                                          //                 "likes": FieldValue.increment(1)
-                                                                          //               });
-                                                                          //             }),
-                                                                          //         Text(data["likes"].toString())
-                                                                          //       ],
-                                                                          //     ),
-                                                                          //   ],
-                                                                          // ),
-
-                                                                          // ),
                                                                         );
                                                                       });
                                                             },
@@ -474,11 +598,12 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                       Expanded(
                                                           flex: 2,
                                                           child: Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                        .symmetric(
                                                                     horizontal:
                                                                         10),
-                                                            decoration: BoxDecoration(
+                                                            decoration: const BoxDecoration(
                                                                 border: Border(
                                                                     top: BorderSide(
                                                                         color: Colors
@@ -500,7 +625,7 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                                           "Type a comment",
                                                                       suffixIcon:
                                                                           IconButton(
-                                                                        icon: Icon(
+                                                                        icon: const Icon(
                                                                             Icons.send),
                                                                         onPressed:
                                                                             () {
@@ -537,7 +662,6 @@ class _SprintDetailsScreenState extends State<SprintDetailsScreen> {
                                                     ],
                                                   )));
                                             },
-                                            totalContributors: 2,
                                           ),
                                           const SizedBox(width: kSpacing / 2),
                                           SizedBox(

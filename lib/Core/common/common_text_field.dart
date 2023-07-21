@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// ignore: must_be_immutable
 class CommonTextField extends StatefulWidget {
   CommonTextField({
     Key? key,
@@ -11,7 +12,8 @@ class CommonTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.draggable = false,
     this.minLength = 0,
-    this.enablestate = 0,
+    this.iconButton,
+    this.isAbsecure = false,
   }) : super(key: key);
 
   final String hintText;
@@ -21,7 +23,9 @@ class CommonTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final bool draggable;
   final int minLength;
-  int enablestate;
+  final Widget? iconButton;
+  bool isAbsecure;
+  // int enablestate;
 
   @override
   _CommonTextFieldState createState() => _CommonTextFieldState();
@@ -29,7 +33,6 @@ class CommonTextField extends StatefulWidget {
 
 class _CommonTextFieldState extends State<CommonTextField> {
   DateTime? _selectedDate;
-  bool _isObscured = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,28 +42,14 @@ class _CommonTextFieldState extends State<CommonTextField> {
         elevation: 10,
         shadowColor: Colors.grey,
         child: TextFormField(
-          obscureText: widget.enablestate == 0 ? false : _isObscured,
+          obscureText: widget.isAbsecure,
 
           // enabled: widget.enablestate == 0 ? true : false,
           controller: widget.controller,
           keyboardType: widget.keyboardType,
           decoration: InputDecoration(
             prefixIcon: Icon(widget.icon),
-            suffixIcon: widget.enablestate == 0
-                ? IconButton(
-                    icon: Icon(widget.suffixIcon),
-                    onPressed: () => selectDate(context),
-                  )
-                : IconButton(
-                    icon: Icon(
-                      _isObscured ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isObscured = !_isObscured;
-                      });
-                    },
-                  ),
+            suffixIcon: widget.iconButton != null ? widget.iconButton! : null,
             hintText: widget.hintText,
             contentPadding: const EdgeInsets.fromLTRB(35, 16, 20, 16),
             border: OutlineInputBorder(

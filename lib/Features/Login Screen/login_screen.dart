@@ -11,10 +11,19 @@ import '../../Core/controllers/Auth Controllers/auth_controllers.dart';
 import '../../Core/helper/helper.dart';
 import '../../Core/routes/routes.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   Login({Key? key}) : super(key: key);
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passwordController = TextEditingController();
+
+  bool _isObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +102,17 @@ class Login extends StatelessWidget {
                     draggable: false,
                   ),
                   CommonTextField(
-                    enablestate: 2,
+                    isAbsecure: _isObscured,
+                    iconButton: IconButton(
+                      icon: Icon(
+                        _isObscured ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObscured = !_isObscured;
+                        });
+                      },
+                    ),
                     icon: Icons.fingerprint,
                     hintText: "Password",
                     controller: passwordController,
