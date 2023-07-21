@@ -68,6 +68,7 @@ dependencies:
   firebase_messaging:
   flutter_local_notifications:
   dropdown_button2: ^2.1.3
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

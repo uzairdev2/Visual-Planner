@@ -33,6 +33,7 @@ class _TaskScreenState extends State<TaskScreen> {
   final TextEditingController _taskDescription = TextEditingController();
   final TextEditingController _taskDeadline = TextEditingController();
   DateTime? _selectedDate;
+  bool isChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,12 @@ class _TaskScreenState extends State<TaskScreen> {
                   setState(() {
                     selectedMember = newValue!;
                     // Call a separate function to handle updating selected users
+                    _isSelected(selectedMember);
                   });
+                },
+
+                onTap: () {
+                  setState(() {});
                 },
                 items: (widget.member
                         .map<String>((dynamic member) => member.toString()))
@@ -81,21 +87,23 @@ class _TaskScreenState extends State<TaskScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Checkbox(
-                            value: _isSelected(member),
-                            onChanged: (value) {
-                              if (value == true) {
-                                setState(() {
-                                  selectedMember = member;
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isChecked = !isChecked;
+                                if (isChecked) {
+                                  // Add the member to the selected users list
                                   _selectedUsers.add(member);
-                                  log("here is the selected user $_selectedUsers ${_selectedUsers.length}");
-                                });
-                              } else {
-                                setState(() {
+                                } else {
+                                  // Remove the member from the selected users list
                                   _selectedUsers.remove(member);
-                                });
-                              }
+                                }
+                              });
                             },
+                            icon: Icon(isChecked
+                                ? Icons.check_box
+                                : Icons.check_box_outline_blank),
+                            color: Colors.blue,
                           ),
                           Text(member),
                         ],

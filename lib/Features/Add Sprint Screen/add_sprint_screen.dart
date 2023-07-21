@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../Core/common/common_snackBar.dart';
 import '../../Core/common/common_text_field.dart';
@@ -20,6 +21,23 @@ class _CreateSprintScreenState extends State<CreateSprintScreen> {
   TextEditingController sprintNameController = TextEditingController();
   TextEditingController startTimeController = TextEditingController();
   TextEditingController endTimeController = TextEditingController();
+
+  DateFormat dateFormat =
+      DateFormat("yyyy-MM-dd"); // For formatting the selected date.
+
+  // Function to show the calendar popup and update the selected date in the text field.
+  Future<void> _selectDate(TextEditingController controller) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null && pickedDate != controller.text) {
+      controller.text = dateFormat.format(pickedDate);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +116,12 @@ class _CreateSprintScreenState extends State<CreateSprintScreen> {
                       keyboardType: TextInputType.datetime,
                       draggable: false,
                       minLength: 1,
-                      suffixIcon: Icons.calendar_month,
+                      iconButton: IconButton(
+                        onPressed: () {
+                          _selectDate(startTimeController);
+                        },
+                        icon: Icon(Icons.calendar_month),
+                      ),
                     ),
                     SizedBox(
                       height: size.height * 0.02,
@@ -110,7 +133,12 @@ class _CreateSprintScreenState extends State<CreateSprintScreen> {
                       keyboardType: TextInputType.datetime,
                       draggable: false,
                       minLength: 1,
-                      suffixIcon: Icons.calendar_month,
+                      iconButton: IconButton(
+                        onPressed: () {
+                          _selectDate(endTimeController);
+                        },
+                        icon: Icon(Icons.calendar_month),
+                      ),
                     ),
                     SizedBox(
                       height: size.height * 0.05,

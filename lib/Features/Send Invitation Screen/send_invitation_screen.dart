@@ -260,6 +260,12 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
       floatingActionButton: _selectedUsers.isNotEmpty
           ? FloatingActionButton(
               onPressed: () async {
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.loading,
+                  title: 'Loading',
+                  text: 'Please Wait Patiently',
+                );
                 // Uploading the sprint details to the firestore database
                 await uploadSprintData();
 
