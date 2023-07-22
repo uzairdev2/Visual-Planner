@@ -5,17 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../Core/helper/helper.dart';
 import '../../../Core/routes/routes.dart';
-import '../../Accepted Sprints Screen/accepted_sprints_screen.dart';
-import '../../Splash Screen/splash_screen.dart';
 import '../../Sprint Details Screen/sprint_details_screen.dart';
 import '../components/shared_components/progress_report_card.dart';
 
-SizedBox fixheight = SizedBox(
+SizedBox fixheight = const SizedBox(
   height: 20,
 );
 
+// ignore: must_be_immutable
 class SprintScreen extends StatelessWidget {
+  // ignore: non_constant_identifier_names
   SprintScreen({required this.Projectid, super.key});
+  // ignore: non_constant_identifier_names
   String Projectid;
 
   @override
@@ -28,17 +29,17 @@ class SprintScreen extends StatelessWidget {
           )),
       body: SafeArea(
           child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Column(
           children: [
             Card(
               color: Colors.amber[100],
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Add New Sprint',
                       style: TextStyle(
                         fontSize: 16.0,
@@ -46,7 +47,7 @@ class SprintScreen extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.add),
+                      icon: const Icon(Icons.add),
                       onPressed: () {
                         Get.toNamed(Routes.CreateSprint);
                         // Handle button press
@@ -99,7 +100,7 @@ class SprintScreen extends StatelessWidget {
                               child: Card(
                                 child: Container(
                                   height: 180,
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 14, vertical: 10),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
@@ -172,12 +173,15 @@ class SprintScreen extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class CommonAppBar extends StatelessWidget {
   CommonAppBar({
     super.key,
+    // ignore: non_constant_identifier_names
     required this.ScreenName,
     this.customwidget,
   });
+  // ignore: non_constant_identifier_names
   String ScreenName;
   Widget? customwidget;
 
@@ -221,13 +225,14 @@ class CommonAppBar extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
           ),
-          customwidget ?? SizedBox.shrink()
+          customwidget ?? const SizedBox.shrink()
         ],
       ),
     );
   }
 }
 
+// ignore: must_be_immutable
 class CommonRow extends StatelessWidget {
   CommonRow({
     super.key,
@@ -246,7 +251,7 @@ class CommonRow extends StatelessWidget {
         flex: 6,
         child: Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -257,7 +262,7 @@ class CommonRow extends StatelessWidget {
         flex: 4,
         child: Text(
           details,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,

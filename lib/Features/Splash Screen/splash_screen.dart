@@ -26,8 +26,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     getValidationData().whenComplete(() async {
-      Timer(Duration(seconds: 3), () async {
+      Timer(const Duration(seconds: 3), () async {
         if (finalEmail != null) {
+          // ignore: unused_local_variable
           final SharedPreferences sharedPreferences =
               await SharedPreferences.getInstance();
 
@@ -55,6 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future getValidationData() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
+    // ignore: non_constant_identifier_names
     var ObtainedEmail = sharedPreferences.getString('email');
     userid = sharedPreferences.getString('userid');
 
@@ -63,8 +65,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
       userid = userid;
     });
-
-    print('Final email: $finalEmail');
   }
 
   @override

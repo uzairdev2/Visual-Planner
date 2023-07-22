@@ -29,6 +29,7 @@ class SendInvitationScreen extends StatefulWidget {
 class _SendInvitationScreenState extends State<SendInvitationScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   List<UserModels> _users = [];
+  // ignore: prefer_final_fields
   List<UserModels> _selectedUsers = [];
   Users? _currentUser;
 
@@ -96,6 +97,7 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
         FirebaseFirestore.instance.collection('Invitations');
 
     for (int i = 0; i < selectedUserEmails.length; i++) {
+      // ignore: unused_local_variable
       final invitationDocRef = await invitationsCollection.add(
         {
           'sprintName': widget.sprintData.sprintName,
@@ -126,6 +128,7 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
 
     // Show success message and navigate to the SprintList page
     Get.offAllNamed(Routes.dashboard);
+    // ignore: use_build_context_synchronously
     QuickAlert.show(
       context: context,
       type: QuickAlertType.success,
@@ -157,6 +160,7 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
             .get();
     if (projectsSnapshot.docs.isEmpty) {
       // If there is no project found for the user, display an error message
+      // ignore: use_build_context_synchronously
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
@@ -175,6 +179,7 @@ class _SendInvitationScreenState extends State<SendInvitationScreen> {
     String projectName = projectSnapshot.data()!['projectName'];
 
     // Add the Sprint collection to the Firestore
+    // ignore: unused_local_variable
     DocumentReference sprintDocRef =
         await FirebaseFirestore.instance.collection('Sprints').add({
       'sprintName': sprintName,

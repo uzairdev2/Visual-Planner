@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ class ProjectListScreen extends StatefulWidget {
 
 class _ProjectListScreenState extends State<ProjectListScreen> {
   final dashboardController = DashboardController();
+  // ignore: prefer_final_fields
   FirestoreService _service = FirestoreService();
   late List<Project> _projects = []; // initialize with an empty list
 
@@ -54,6 +57,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       final currentUser = FirebaseAuth.instance.currentUser;
       final projectsRef = FirebaseFirestore.instance.collection('Projects');
       final projectRef = projectsRef.doc(projectId);
+      // ignore: unused_local_variable
       final userProjectsRef =
           projectsRef.where('userId', isEqualTo: currentUser!.uid);
       await projectRef.delete();
@@ -62,8 +66,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
         _projects.removeWhere((project) => project.id == projectId);
       });
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Project deleted successfully!'),
           duration: Duration(seconds: 2),
         ),
@@ -173,7 +178,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "\t\t\t\t" + project.description,
+                        "\t\t\t\t${project.description}",
                         style: GoogleFonts.ubuntu(
                           color: Colors.grey[800],
                         ),
@@ -189,7 +194,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                   ),
                   trailing: IconButton(
                     tooltip: 'Delete Project',
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     onPressed: () {
                       QuickAlert.show(
                         context: context,
@@ -217,7 +222,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
 }
 
 class Project {
+  // ignore: prefer_typing_uninitialized_variables
   final id;
+  // ignore: prefer_typing_uninitialized_variables
   final createdAt;
   final String name;
   final String description;

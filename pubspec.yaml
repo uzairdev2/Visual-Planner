@@ -67,8 +67,9 @@ dependencies:
   table_calendar:
   firebase_messaging:
   flutter_local_notifications:
-  dropdown_button2: ^2.1.3
-  intl: ^0.18.1
+  dropdown_button2:
+  intl:
+  multiselect: ^0.1.0
 
 dev_dependencies:
   flutter_test:

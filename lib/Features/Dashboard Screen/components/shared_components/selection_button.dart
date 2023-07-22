@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:visual_planner/Core/helper/helper.dart';
-import 'package:visual_planner/Core/routes/routes.dart';
 
 class SelectionButtonData {
   final IconData activeIcon;

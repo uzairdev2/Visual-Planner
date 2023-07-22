@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:visual_planner/Core/models/commonData.dart';
 import 'package:visual_planner/Features/Splash%20Screen/splash_screen.dart';
 
 import '../../../../Core/helper/helper.dart';
@@ -27,6 +25,7 @@ class ProgressCard extends StatefulWidget {
   final Function() onPressedCheck;
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProgressCardState createState() => _ProgressCardState();
 }
 

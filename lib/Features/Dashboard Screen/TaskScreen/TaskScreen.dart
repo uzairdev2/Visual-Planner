@@ -1,7 +1,7 @@
-import 'dart:developer';
-
+// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:multiselect/multiselect.dart';
 
 import '../../Splash Screen/splash_screen.dart';
 import '../InvaitionScreen/invitionScreen.dart';
@@ -18,28 +18,17 @@ class TaskScreen extends StatefulWidget {
 }
 
 class _TaskScreenState extends State<TaskScreen> {
-  // ignore: prefer_final_fields
-  List _selectedUsers = [];
-
-  bool _isSelected(String name) {
-    if (_selectedUsers.contains(name)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   final TextEditingController _taskName = TextEditingController();
   final TextEditingController _taskDescription = TextEditingController();
   final TextEditingController _taskDeadline = TextEditingController();
   DateTime? _selectedDate;
   bool isChecked = false;
 
+  String? selectedMember;
+  List<String> _selectedUsers = [];
+
   @override
   Widget build(BuildContext context) {
-    String selectedMember = widget.member[
-        0]; // Set the initial selected member to the first member in the list
-
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
@@ -55,62 +44,19 @@ class _TaskScreenState extends State<TaskScreen> {
               const SizedBox(
                 height: 10,
               ),
-              DropdownButton<String>(
-                value: selectedMember,
-                hint: Text('Please select a user'), // Add a hint text
-                onChanged: (String? newValue) {
+              DropDownMultiSelect<String>(
+                // Explicitly specify the generic type T as String
+                onChanged: (List<String> selectedValues) {
                   setState(() {
-                    selectedMember = newValue!;
-                    // Call a separate function to handle updating selected users
-                    _isSelected(selectedMember);
+                    _selectedUsers =
+                        selectedValues; // Update the _selectedUsers list directly
                   });
                 },
-
-                onTap: () {
-                  setState(() {});
-                },
-                items: (widget.member
-                        .map<String>((dynamic member) => member.toString()))
-                    .map<DropdownMenuItem<String>>((String member) {
-                  return DropdownMenuItem<String>(
-                    value: member,
-                    onTap: () {
-                      setState(() {});
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.amber[100],
-                      ),
-                      width: 300,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isChecked = !isChecked;
-                                if (isChecked) {
-                                  // Add the member to the selected users list
-                                  _selectedUsers.add(member);
-                                } else {
-                                  // Remove the member from the selected users list
-                                  _selectedUsers.remove(member);
-                                }
-                              });
-                            },
-                            icon: Icon(isChecked
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank),
-                            color: Colors.blue,
-                          ),
-                          Text(member),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+                options: widget.member
+                    .map((dynamic member) => member.toString())
+                    .toList(),
+                selectedValues: _selectedUsers,
+                whenEmpty: 'Please select a member',
               ),
               fixheight2,
               TextField(
@@ -184,12 +130,15 @@ class _TaskScreenState extends State<TaskScreen> {
                       "taskProjectManager": widget.data["createdByName"],
                       "dueto":
                           "${_selectedDate!.day}-${_selectedDate!.month}-${_selectedDate!.year}",
+                      // ignore: equal_keys_in_map
                       "userid": userid,
                       "taskStatusColor": "red",
                       "taskStatusColor2": "yellow",
                     });
                     Get.back();
+                    // ignore: use_build_context_synchronously
                     Navigator.pop(context);
+                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Task Added Successfully"),

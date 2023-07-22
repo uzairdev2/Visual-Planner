@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 
-import '../../../../Core/Firestore Services/firestore_services.dart';
 import '../../../../Core/helper/helper.dart';
-import '../../../../Core/models/Users Data/json_model.dart';
 import '../../../../Core/models/commonData.dart';
 import '../../../../Core/models/profile.dart';
 
@@ -20,7 +18,7 @@ class ProfilTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: EdgeInsets.all(0),
+      contentPadding: const EdgeInsets.all(0),
       leading: CircleAvatar(
         backgroundImage: NetworkImage(commonModel.profileImageUrl.toString()),
       ),
